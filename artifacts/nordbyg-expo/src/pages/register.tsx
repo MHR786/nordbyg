@@ -200,7 +200,7 @@ export default function Register() {
     <Layout>
       <div className="pt-28 pb-20 min-h-screen">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="grid lg:grid-cols-12 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Sidebar */}
             <aside className="lg:col-span-4">
               <div className="lg:sticky lg:top-28">

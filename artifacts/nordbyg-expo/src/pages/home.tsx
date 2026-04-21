@@ -454,7 +454,7 @@ export default function Home() {
 
       {/* PROGRAMME / SPEAKERS */}
       <Section className="bg-card/30 border-y border-border">
-        <div className="grid lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <FadeIn>
             <div className="lg:col-span-4">
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
@@ -681,7 +681,7 @@ export default function Home() {
 
       {/* FAQ */}
       <Section>
-        <div className="grid lg:grid-cols-12 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           <FadeIn>
             <div className="lg:col-span-4">
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
