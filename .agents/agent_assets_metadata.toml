@@ -1,0 +1,62 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "8QzTBD6Hlz2eX08sJdYGS"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/hero-expo.png"
+type = "image"
+title = "Futuristic Danish exhibition hall at dusk"
+
+[[generated]]
+id = "RWENhV3N8I0Z7gCkFwkKU"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/bim-screens.png"
+type = "image"
+title = "BIM model glowing on screens"
+
+[[generated]]
+id = "rRgsGKXgVe5ClPXAu1jvc"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/copenhagen-cranes.png"
+type = "image"
+title = "Cranes against Copenhagen skyline"
+
+[[generated]]
+id = "0K8Vg5WttFtNV9C1N0Smm"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/timber-construction.png"
+type = "image"
+title = "Sustainable timber construction"
+
+[[generated]]
+id = "jJaP6LXxatQl5JvLfdx-u"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/conference-stage.png"
+type = "image"
+title = "Conference stage with speaker"
+
+[[generated]]
+id = "9NXpMVYJBWHczzEBj1mHf"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/booth-networking.png"
+type = "image"
+title = "Exhibition booth networking"
+
+[[generated]]
+id = "-FYI3vHjQqjr9gg84kdsJ"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/arch-model.png"
+type = "image"
+title = "Architectural model close up"
+
+[[generated]]
+id = "FjobnIOmzbQNrI9K5QCZc"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/craftsman.png"
+type = "image"
+title = "Craftsman at work"
+
+[[generated]]
+id = "fj9oUogxoaURLHw16N5ew"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/prefab.png"
+type = "image"
+title = "Modular prefab building"
+
+[[generated]]
+id = "11JfaFfw9rTkOhC-zAQPt"
+uri = "file://artifacts/nordbyg-expo/src/assets/images/bella-center.png"
+type = "image"
+title = "Bella center exterior"
