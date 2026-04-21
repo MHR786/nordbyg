@@ -149,7 +149,7 @@ export default function About() {
 
           {/* Sustainability */}
           <Card className="p-8 md:p-12 bg-card mb-20 border-primary/30">
-            <div className="grid md:grid-cols-12 gap-8 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
               <div className="md:col-span-3">
                 <Leaf className="w-12 h-12 text-primary" />
               </div>

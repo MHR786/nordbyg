@@ -55,7 +55,7 @@ export default function Programme() {
                       transition={{ delay: i * 0.04 }}
                     >
                       <Card className="p-5 md:p-6 bg-card hover:border-primary/40 transition-colors">
-                        <div className="grid md:grid-cols-12 gap-4 items-start">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
                           <div className="md:col-span-2">
                             <div className="flex items-center gap-2 text-primary font-mono font-semibold">
                               <Clock className="w-4 h-4" />
