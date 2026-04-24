@@ -129,13 +129,16 @@ function FadeIn({
   children,
   delay = 0,
   y = 30,
+  className = "",
 }: {
   children: React.ReactNode;
   delay?: number;
   y?: number;
+  className?: string;
 }) {
   return (
     <motion.div
+      className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
@@ -455,8 +458,8 @@ export default function Home() {
       {/* PROGRAMME / SPEAKERS */}
       <Section className="bg-card/30 border-y border-border">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          <FadeIn>
-            <div className="lg:col-span-4">
+          <FadeIn className="lg:col-span-4">
+            <div>
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
                 Conference Programme
               </p>
@@ -602,8 +605,8 @@ export default function Home() {
       {/* SUSTAINABILITY / IMAGES */}
       <Section>
         <div className="grid md:grid-cols-3 gap-5">
-          <FadeIn>
-            <div className="md:col-span-2 aspect-[16/10] rounded-2xl overflow-hidden border border-border relative group">
+          <FadeIn className="md:col-span-2">
+            <div className="aspect-16/10 rounded-2xl overflow-hidden border border-border relative group">
               <img src={timber} alt="Cross-laminated timber construction" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
               <div className="absolute bottom-0 p-8">
@@ -682,8 +685,8 @@ export default function Home() {
       {/* FAQ */}
       <Section>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          <FadeIn>
-            <div className="lg:col-span-4">
+          <FadeIn className="lg:col-span-4">
+            <div>
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
                 FAQ
               </p>
@@ -700,8 +703,8 @@ export default function Home() {
               </p>
             </div>
           </FadeIn>
-          <FadeIn delay={0.1}>
-            <div className="lg:col-span-8">
+          <FadeIn delay={0.1} className="lg:col-span-8">
+            <div>
               <Accordion type="single" collapsible className="w-full">
                 {faqs.map((f, i) => (
                   <AccordionItem key={i} value={`item-${i}`} className="border-border">
