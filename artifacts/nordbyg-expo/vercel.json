@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../.. && npm i -g pnpm@10.33.2 && pnpm install --filter @workspace/nordbyg-expo... --frozen-lockfile=false",
+  "buildCommand": "PORT=3000 BASE_PATH=/ pnpm run build",
+  "outputDirectory": "dist/public",
+  "framework": null,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
