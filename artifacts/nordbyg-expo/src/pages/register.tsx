@@ -68,6 +68,7 @@ const stands = [
 export default function Register() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -98,16 +99,42 @@ export default function Register() {
 
   const prev = () => setStep((s) => Math.max(1, s - 1));
 
-  const onSubmit = (_data: FormData) => {
-    // Frontend-only — no backend call
-    setSubmitted(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const onSubmit = async (data: FormData) => {
+    setSubmitError("");
+    const standLabel = stands.find((s) => s.id === data.standSize)?.label ?? data.standSize;
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: import.meta.env.VITE_WEB3FORMS_KEY,
+          subject: `New Exhibitor Registration — ${data.companyName} · NordByg 2026`,
+          from_name: data.companyName,
+          "Company Name": data.companyName,
+          "Contact Person": data.contactPerson,
+          "Email": data.email,
+          "Phone": data.phone,
+          "Country": data.country,
+          "Website": data.website || "—",
+          "Category": data.category,
+          "Stand Size": standLabel,
+          "Description": data.description,
+        }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message ?? "Submission failed");
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      setSubmitError("Something went wrong. Please try again or email us directly.");
+    }
   };
 
   const reset = () => {
     form.reset();
     setStep(1);
     setSubmitted(false);
+    setSubmitError("");
   };
 
   if (submitted) {
@@ -443,12 +470,19 @@ export default function Register() {
                         <p className="text-sm text-destructive">{form.formState.errors.consent.message}</p>
                       )}
 
+                      {submitError && (
+                        <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-4 py-3">
+                          {submitError}
+                        </p>
+                      )}
+
                       <div className="flex justify-between pt-4">
                         <Button type="button" size="lg" variant="outline" onClick={prev}>
                           <ArrowLeft className="mr-2 w-4 h-4" /> Back
                         </Button>
-                        <Button type="submit" size="lg">
-                          Submit registration <Check className="ml-2 w-4 h-4" />
+                        <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
+                          {form.formState.isSubmitting ? "Sending…" : "Submit registration"}
+                          <Check className="ml-2 w-4 h-4" />
                         </Button>
                       </div>
                     </motion.div>
