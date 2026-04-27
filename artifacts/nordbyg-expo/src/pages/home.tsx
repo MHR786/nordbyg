@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+﻿import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState } from "react";
 import { Link } from "wouter";
 import {
@@ -93,10 +93,10 @@ DI Byg / AOB members  free
 CONTACT
 -------
 NordByg Expo Sekretariat
-Email:  info@nordbygexpo.dk
+Email:  info@nordexpo.dk
 Phone:  +45 32 52 88 11
 
-Register today at nordbygexpo.dk/register
+Register today at nordexpo.dk/register
 `;
   const blob = new Blob([text], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
@@ -696,8 +696,8 @@ export default function Home() {
               <p className="text-lg text-muted-foreground mb-6">
                 Can't find what you're looking for?
                 Email us at{" "}
-                <a href="mailto:info@nordbygexpo.dk" className="text-primary hover:underline">
-                  info@nordbygexpo.dk
+                <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">
+                  info@nordexpo.dk
                 </a>
                 .
               </p>
@@ -744,7 +744,7 @@ export default function Home() {
                   Register as Exhibitor <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <a href="mailto:info@nordbygexpo.dk?subject=Stand%20enquiry%20—%20NordByg%202026">
+              <a href="mailto:info@nordexpo.dk?subject=Stand%20enquiry%20—%20NordByg%202026">
                 <Button size="lg" variant="outline" className="h-14 px-10 text-base">
                   Talk to our team
                 </Button>

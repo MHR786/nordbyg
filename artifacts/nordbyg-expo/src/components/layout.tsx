@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+﻿import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, ArrowRight, MapPin, Calendar, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -173,7 +173,7 @@ export function Layout({ children }: LayoutProps) {
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
                   <Mail className="w-5 h-5 text-primary shrink-0" />
-                  <a href="mailto:info@nordbygexpo.dk" className="hover:text-primary transition-colors">info@nordbygexpo.dk</a>
+                  <a href="mailto:info@nordexpo.dk" className="hover:text-primary transition-colors">info@nordexpo.dk</a>
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
                   <Phone className="w-5 h-5 text-primary shrink-0" />

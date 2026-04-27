@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { useState } from "react";
 import { Leaf, Users, Newspaper, Send } from "lucide-react";
 import { Layout } from "@/components/layout";
@@ -191,15 +191,15 @@ export default function About() {
               <div className="space-y-4 text-sm">
                 <div>
                   <div className="text-xs uppercase text-muted-foreground tracking-widest">Press</div>
-                  <a href="mailto:press@nordbygexpo.dk" className="text-primary hover:underline">press@nordbygexpo.dk</a>
+                  <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">info@nordexpo.dk</a>
                 </div>
                 <div>
                   <div className="text-xs uppercase text-muted-foreground tracking-widest">Exhibitors</div>
-                  <a href="mailto:exhibitors@nordbygexpo.dk" className="text-primary hover:underline">exhibitors@nordbygexpo.dk</a>
+                  <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">info@nordexpo.dk</a>
                 </div>
                 <div>
                   <div className="text-xs uppercase text-muted-foreground tracking-widest">General</div>
-                  <a href="mailto:info@nordbygexpo.dk" className="text-primary hover:underline">info@nordbygexpo.dk</a>
+                  <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">info@nordexpo.dk</a>
                 </div>
               </div>
             </div>

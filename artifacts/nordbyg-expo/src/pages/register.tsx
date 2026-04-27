@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -231,8 +231,8 @@ function Sidebar({
           </div>
           <div className="flex items-center gap-3">
             <Mail className="w-4 h-4 text-primary" />
-            <a href="mailto:info@nordbygexpo.dk" className="text-sm hover:text-primary">
-              info@nordbygexpo.dk
+            <a href="mailto:info@nordexpo.dk" className="text-sm hover:text-primary">
+              info@nordexpo.dk
             </a>
           </div>
         </Card>
@@ -1036,8 +1036,8 @@ export default function Register() {
             className="text-center mt-10 text-sm text-muted-foreground"
           >
             Questions? Email us at{" "}
-            <a href="mailto:info@nordbygexpo.dk" className="text-primary hover:underline">
-              info@nordbygexpo.dk
+            <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">
+              info@nordexpo.dk
             </a>
           </motion.div>
         </div>

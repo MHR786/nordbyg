@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { Link } from "wouter";
 import {
   Clock,
@@ -172,7 +172,7 @@ export default function Visit() {
                     <h3 className="font-semibold mb-2">{t.name}</h3>
                     <div className="text-3xl font-bold text-primary mb-3">{t.price}</div>
                     <p className="text-sm text-muted-foreground mb-5 flex-1">{t.desc}</p>
-                    <a href="mailto:tickets@nordbygexpo.dk?subject=Ticket%20enquiry">
+                    <a href="mailto:info@nordexpo.dk?subject=Ticket%20enquiry">
                       <Button variant="outline" size="sm" className="w-full">
                         Reserve
                       </Button>
