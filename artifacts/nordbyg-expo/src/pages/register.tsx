@@ -12,6 +12,8 @@ import {
   MapPin,
   Mail,
   Building2,
+  Users,
+  UserCheck,
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -28,22 +30,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 
-const schema = z.object({
-  companyName: z.string().min(2, "Company name is required"),
-  contactPerson: z.string().min(2, "Contact name is required"),
-  email: z.string().email("Valid email required"),
-  phone: z.string().min(6, "Phone number is required"),
-  country: z.string().min(2, "Country is required"),
-  website: z.string().url("Valid URL required").or(z.literal("")),
-  category: z.string().min(1, "Please choose a category"),
-  standSize: z.string().min(1, "Please choose a stand size"),
-  description: z.string().min(20, "Please provide at least 20 characters"),
-  consent: z.literal(true, { message: "You must accept the terms" }),
-});
+// ─── Shared data ──────────────────────────────────────────────────────────────
 
-type FormData = z.infer<typeof schema>;
-
-const categories = [
+const interestAreas = [
   "BIM & Digital Construction",
   "Sustainable Building Materials",
   "Heavy Machinery & Equipment",
@@ -52,73 +41,374 @@ const categories = [
   "Smart Buildings & Facade Tech",
   "Safety, Compliance & Standards",
   "Architecture & Urban Design",
-  "Insulation",
-  "Roofing & Waterproofing",
-  "Heating, Ventilation & Energy",
+];
+
+const howYouHeardOptions = [
+  "Social Media",
+  "Search Engine (Google, etc.)",
+  "Colleague / Word of mouth",
+  "Industry publication / Magazine",
+  "Previous NordByg Expo",
+  "Email newsletter",
   "Other",
 ];
 
-const stands = [
-  { id: "9", label: "9 m² Shell-scheme", price: "12,400 DKK" },
-  { id: "18", label: "18 m² Shell-scheme", price: "23,800 DKK" },
-  { id: "36", label: "36 m² Space-only", price: "42,500 DKK" },
-  { id: "72", label: "72 m² Space-only", price: "78,000 DKK" },
+// ─── Visitor schema ───────────────────────────────────────────────────────────
+
+const visitorSchema = z.object({
+  name: z.string().min(2, "Full name is required"),
+  email: z.string().email("Valid email required"),
+  attendeeType: z.string().min(1, "Please select a type"),
+  designation: z.string().min(2, "Designation is required"),
+  gender: z.string().min(1, "Please select your gender"),
+  dob: z.string().min(1, "Date of birth is required"),
+  country: z.string().min(2, "Country is required"),
+  companyUrl: z.string().url("Valid URL required").or(z.literal("")),
+  address: z.string().min(5, "Address is required"),
+  contactNumber: z.string().min(6, "Contact number is required"),
+  aboutYourself: z.string().min(20, "Please write at least 20 characters"),
+  interestedIn: z.array(z.string()).min(1, "Select at least one area"),
+  howYouHeard: z.string().min(1, "Please select an option"),
+  passSelection: z.string().min(1, "Please select a pass"),
+  consent: z.literal(true, { message: "You must accept the terms" }),
+});
+
+type VisitorData = z.infer<typeof visitorSchema>;
+
+const visitorPasses = [
+  { id: "A", label: "Pass A — 1-Day Trade Pass", price: "245 DKK" },
+  { id: "B", label: "Pass B — 3-Day Trade Pass", price: "545 DKK" },
+  { id: "C", label: "Pass C — Student Pass", price: "95 DKK (valid student ID required)" },
+  { id: "D", label: "Pass D — Member Pass", price: "Free (DI Byg / AOB members)" },
 ];
 
-export default function Register() {
+// ─── Exhibitor schema ─────────────────────────────────────────────────────────
+
+const exhibitorSchema = z.object({
+  name: z.string().min(2, "Full name is required"),
+  email: z.string().email("Valid email required"),
+  companyName: z.string().min(2, "Company name is required"),
+  designation: z.string().min(2, "Designation is required"),
+  role: z.string().min(1, "Please select a role"),
+  buyerType: z.string().min(1, "Please select a type"),
+  companyUrl: z.string().url("Valid URL required").or(z.literal("")),
+  country: z.string().min(2, "Country is required"),
+  address: z.string().min(5, "Address is required"),
+  phone: z.string().min(6, "Phone number is required"),
+  standOption: z.string().min(1, "Please select a stand option"),
+  interestedIn: z.array(z.string()).min(1, "Select at least one area"),
+  howYouHeard: z.string().min(1, "Please select an option"),
+  consent: z.literal(true, { message: "You must accept the terms" }),
+});
+
+type ExhibitorData = z.infer<typeof exhibitorSchema>;
+
+const exhibitorRoles = [
+  "Final Decision Maker",
+  "Accountant / Finance",
+  "Project Manager",
+  "Sales / Business Development",
+  "Technical / Engineering",
+  "HR / Administration",
+  "Trainer / Consultant",
+  "Other",
+];
+
+const buyerTypes = [
+  "Buyer",
+  "Purchaser",
+  "Specifier",
+  "Contractor",
+  "Other",
+];
+
+const standOptions = [
+  { id: "A", label: "Stand A — 9 m² Shell-scheme", price: "from 12,400 DKK" },
+  { id: "B", label: "Stand B — 18 m² Shell-scheme", price: "from 23,800 DKK" },
+  { id: "C", label: "Stand C — 36 m² Space-only", price: "from 42,500 DKK" },
+  { id: "D", label: "Stand D — 72 m² Space-only", price: "from 78,000 DKK" },
+];
+
+// ─── Shared helpers ───────────────────────────────────────────────────────────
+
+function Field({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <Label className="mb-2 block">{label}</Label>
+      {children}
+      {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
+    </div>
+  );
+}
+
+function Row({ label, v }: { label: string; v: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4 text-sm">
+      <span className="text-muted-foreground shrink-0">{label}</span>
+      <span className="font-medium text-right">{v}</span>
+    </div>
+  );
+}
+
+function InterestCheckboxes({
+  value,
+  onChange,
+  error,
+}: {
+  value: string[];
+  onChange: (v: string[]) => void;
+  error?: string;
+}) {
+  const toggle = (area: string) => {
+    onChange(
+      value.includes(area) ? value.filter((a) => a !== area) : [...value, area]
+    );
+  };
+  return (
+    <div>
+      <Label className="mb-3 block">Interested in *</Label>
+      <div className="grid sm:grid-cols-2 gap-2">
+        {interestAreas.map((area) => (
+          <label
+            key={area}
+            className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary/40 cursor-pointer transition-colors"
+          >
+            <Checkbox
+              checked={value.includes(area)}
+              onCheckedChange={() => toggle(area)}
+            />
+            <span className="text-sm">{area}</span>
+          </label>
+        ))}
+      </div>
+      {error && <p className="text-sm text-destructive mt-2">{error}</p>}
+    </div>
+  );
+}
+
+function Sidebar({
+  type,
+  step,
+  steps,
+}: {
+  type: "visitor" | "exhibitor";
+  step: number;
+  steps: string[];
+}) {
+  return (
+    <aside className="lg:col-span-4">
+      <div className="lg:sticky lg:top-28">
+        <p className="text-sm font-medium uppercase tracking-widest text-primary mb-3">
+          {type === "visitor" ? "Visitor Registration" : "Exhibitor Registration"}
+        </p>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5">
+          {type === "visitor"
+            ? "Register as a visitor to NordByg 2026."
+            : "Reserve your stand at NordByg 2026."}
+        </h1>
+        <p className="text-muted-foreground mb-8">
+          {type === "visitor"
+            ? "Complete the form to register your visitor pass. You'll receive your ticket confirmation by email."
+            : "Submit the form to apply for an exhibition stand. Our team reviews every application within 3 business days."}
+        </p>
+
+        <Card className="p-5 bg-card mb-5 border-border">
+          <div className="flex items-center gap-3 mb-3">
+            <Calendar className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">15 — 17 September 2026</span>
+          </div>
+          <div className="flex items-center gap-3 mb-3">
+            <MapPin className="w-4 h-4 text-primary" />
+            <span className="text-sm">Bella Center Copenhagen</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Mail className="w-4 h-4 text-primary" />
+            <a href="mailto:info@nordbygexpo.dk" className="text-sm hover:text-primary">
+              info@nordbygexpo.dk
+            </a>
+          </div>
+        </Card>
+
+        <div className="space-y-3">
+          {steps.map((label, i) => {
+            const s = i + 1;
+            return (
+              <div
+                key={s}
+                className={`flex items-center gap-3 p-3 rounded-lg border ${
+                  step === s
+                    ? "border-primary bg-primary/5"
+                    : step > s
+                    ? "border-border bg-card"
+                    : "border-border"
+                }`}
+              >
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${
+                    step === s
+                      ? "bg-primary text-primary-foreground"
+                      : step > s
+                      ? "bg-primary/20 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {step > s ? <Check className="w-4 h-4" /> : s}
+                </div>
+                <span
+                  className={`text-sm font-medium ${
+                    step === s ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function SuccessScreen({ onReset }: { onReset: () => void }) {
+  return (
+    <Layout>
+      <div className="min-h-[80vh] pt-32 pb-20 flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-2xl text-center"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+            className="w-28 h-28 mx-auto mb-8 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center relative"
+          >
+            <Check className="w-14 h-14 text-primary" strokeWidth={3} />
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-primary"
+              initial={{ scale: 1, opacity: 0.6 }}
+              animate={{ scale: 1.6, opacity: 0 }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="text-4xl md:text-5xl font-bold tracking-tight mb-5"
+          >
+            Registration submitted
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75 }}
+            className="text-lg text-muted-foreground mb-3"
+          >
+            Thank you. Your registration for NordByg Expo 2026 has been received.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.85 }}
+            className="text-base text-muted-foreground mb-10 max-w-lg mx-auto"
+          >
+            Our team will review your application and contact you within{" "}
+            <strong className="text-foreground">3 business days</strong>. Please
+            check your inbox for a confirmation email shortly.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
+            className="flex flex-wrap justify-center gap-4"
+          >
+            <Link href="/">
+              <Button size="lg" className="h-12 px-8">Return to home</Button>
+            </Link>
+            <Button size="lg" variant="outline" className="h-12 px-8" onClick={onReset}>
+              Submit another registration
+            </Button>
+          </motion.div>
+        </motion.div>
+      </div>
+    </Layout>
+  );
+}
+
+// ─── Visitor form ─────────────────────────────────────────────────────────────
+
+function VisitorForm({ onBack }: { onBack: () => void }) {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(schema),
+  const form = useForm<VisitorData>({
+    resolver: zodResolver(visitorSchema),
     mode: "onTouched",
     defaultValues: {
-      companyName: "",
-      contactPerson: "",
-      email: "",
-      phone: "",
-      country: "Denmark",
-      website: "",
-      category: "",
-      standSize: "",
-      description: "",
+      name: "", email: "", attendeeType: "", designation: "",
+      gender: "", dob: "", country: "Denmark", companyUrl: "",
+      address: "", contactNumber: "", aboutYourself: "",
+      interestedIn: [], howYouHeard: "", passSelection: "",
       consent: false as unknown as true,
     },
   });
 
+  const stepFields: (keyof VisitorData)[][] = [
+    [],
+    ["name", "email", "attendeeType", "gender", "dob", "contactNumber"],
+    ["designation", "country", "companyUrl", "address", "aboutYourself"],
+    ["interestedIn", "howYouHeard", "passSelection", "consent"],
+  ];
+
   const next = async () => {
-    const fields: (keyof FormData)[][] = [
-      [],
-      ["companyName", "contactPerson", "email", "phone", "country", "website"],
-      ["category", "standSize", "description"],
-    ];
-    const ok = await form.trigger(fields[step]);
+    const ok = await form.trigger(stepFields[step]);
     if (ok) setStep((s) => Math.min(3, s + 1));
   };
 
-  const prev = () => setStep((s) => Math.max(1, s - 1));
+  const prev = () => {
+    if (step === 1) { onBack(); return; }
+    setStep((s) => Math.max(1, s - 1));
+  };
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: VisitorData) => {
     setSubmitError("");
-    const standLabel = stands.find((s) => s.id === data.standSize)?.label ?? data.standSize;
+    const pass = visitorPasses.find((p) => p.id === data.passSelection);
     try {
       const res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           access_key: import.meta.env.VITE_WEB3FORMS_KEY,
-          subject: `New Exhibitor Registration — ${data.companyName} · NordByg 2026`,
-          from_name: data.companyName,
-          "Company Name": data.companyName,
-          "Contact Person": data.contactPerson,
+          subject: `New Visitor Registration — ${data.name} · NordByg 2026`,
+          from_name: data.name,
+          "Registration Type": "Visitor",
+          "Name": data.name,
           "Email": data.email,
-          "Phone": data.phone,
+          "Attendee Type": data.attendeeType,
+          "Designation": data.designation,
+          "Gender": data.gender,
+          "Date of Birth": data.dob,
           "Country": data.country,
-          "Website": data.website || "—",
-          "Category": data.category,
-          "Stand Size": standLabel,
-          "Description": data.description,
+          "Company URL": data.companyUrl || "—",
+          "Address": data.address,
+          "Contact Number": data.contactNumber,
+          "About": data.aboutYourself,
+          "Interested In": data.interestedIn.join(", "),
+          "How They Heard": data.howYouHeard,
+          "Pass Selected": pass ? `${pass.label} · ${pass.price}` : data.passSelection,
         }),
       });
       const json = await res.json();
@@ -130,289 +420,67 @@ export default function Register() {
     }
   };
 
-  const reset = () => {
-    form.reset();
-    setStep(1);
-    setSubmitted(false);
-    setSubmitError("");
-  };
+  if (submitted) return <SuccessScreen onReset={onBack} />;
 
-  if (submitted) {
-    return (
-      <Layout>
-        <div className="min-h-[80vh] pt-32 pb-20 flex items-center justify-center px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-2xl text-center"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-              className="w-28 h-28 mx-auto mb-8 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center relative"
-            >
-              <motion.div
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 0.6, delay: 0.5, ease: "easeInOut" }}
-              >
-                <Check className="w-14 h-14 text-primary" strokeWidth={3} />
-              </motion.div>
-              <motion.div
-                className="absolute inset-0 rounded-full border-2 border-primary"
-                initial={{ scale: 1, opacity: 0.6 }}
-                animate={{ scale: 1.6, opacity: 0 }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="text-4xl md:text-5xl font-bold tracking-tight mb-5"
-            >
-              Registration submitted
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.75 }}
-              className="text-lg text-muted-foreground mb-3"
-            >
-              Thank you. Your application to exhibit at NordByg Expo 2026 has
-              been received.
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.85 }}
-              className="text-base text-muted-foreground mb-10 max-w-lg mx-auto"
-            >
-              Our exhibitor team will review your application and contact you
-              within <strong className="text-foreground">3 business days</strong>{" "}
-              for company approval. Please check your inbox for a confirmation
-              email shortly.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-              className="flex flex-wrap justify-center gap-4"
-            >
-              <Link href="/">
-                <Button size="lg" className="h-12 px-8">
-                  Return to home
-                </Button>
-              </Link>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12 px-8"
-                onClick={reset}
-              >
-                Submit another registration
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </Layout>
-    );
-  }
+  const steps = ["Personal details", "Additional info", "Review & submit"];
 
   return (
     <Layout>
       <div className="pt-28 pb-20 min-h-screen">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            {/* Sidebar */}
-            <aside className="lg:col-span-4">
-              <div className="lg:sticky lg:top-28">
-                <p className="text-sm font-medium uppercase tracking-widest text-primary mb-3">
-                  Exhibitor Registration
-                </p>
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5">
-                  Reserve your stand at NordByg 2026.
-                </h1>
-                <p className="text-muted-foreground mb-8">
-                  Submit the form to apply for an exhibition stand. Our team
-                  reviews every application within 3 business days to confirm
-                  fit with the construction sector before issuing a stand
-                  contract.
-                </p>
+            <Sidebar type="visitor" step={step} steps={steps} />
 
-                <Card className="p-5 bg-card mb-5 border-border">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-medium">
-                      15 — 17 September 2026
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <MapPin className="w-4 h-4 text-primary" />
-                    <span className="text-sm">
-                      Bella Center Copenhagen
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-primary" />
-                    <a
-                      href="mailto:exhibitors@nordbygexpo.dk"
-                      className="text-sm hover:text-primary"
-                    >
-                      exhibitors@nordbygexpo.dk
-                    </a>
-                  </div>
-                </Card>
-
-                <div className="space-y-3">
-                  {[1, 2, 3].map((s) => (
-                    <div
-                      key={s}
-                      className={`flex items-center gap-3 p-3 rounded-lg border ${
-                        step === s
-                          ? "border-primary bg-primary/5"
-                          : step > s
-                          ? "border-border bg-card"
-                          : "border-border"
-                      }`}
-                    >
-                      <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${
-                          step === s
-                            ? "bg-primary text-primary-foreground"
-                            : step > s
-                            ? "bg-primary/20 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {step > s ? <Check className="w-4 h-4" /> : s}
-                      </div>
-                      <span
-                        className={`text-sm font-medium ${
-                          step === s ? "text-foreground" : "text-muted-foreground"
-                        }`}
-                      >
-                        {s === 1 && "Company information"}
-                        {s === 2 && "Stand selection"}
-                        {s === 3 && "Review & submit"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-
-            {/* Form */}
             <div className="lg:col-span-8">
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <Card className="p-6 md:p-10 bg-card border-border">
-                  {step === 1 && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center gap-3 mb-2">
-                        <Building2 className="w-6 h-6 text-primary" />
-                        <h2 className="text-2xl font-semibold">
-                          Company information
-                        </h2>
-                      </div>
 
+                  {/* Step 1 — Personal details */}
+                  {step === 1 && (
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Users className="w-6 h-6 text-primary" />
+                        <h2 className="text-2xl font-semibold">Personal details</h2>
+                      </div>
                       <div className="grid sm:grid-cols-2 gap-5">
-                        <Field label="Company name *" error={form.formState.errors.companyName?.message}>
-                          <Input {...form.register("companyName")} placeholder="e.g. Nordic BuildTech ApS" />
-                        </Field>
-                        <Field label="Contact person *" error={form.formState.errors.contactPerson?.message}>
-                          <Input {...form.register("contactPerson")} placeholder="Full name" />
+                        <Field label="Full name *" error={form.formState.errors.name?.message}>
+                          <Input {...form.register("name")} placeholder="Your full name" />
                         </Field>
                         <Field label="Email *" error={form.formState.errors.email?.message}>
                           <Input type="email" {...form.register("email")} placeholder="name@company.dk" />
                         </Field>
-                        <Field label="Phone *" error={form.formState.errors.phone?.message}>
-                          <Input {...form.register("phone")} placeholder="+45 ..." />
+                        <Field label="Attendee type *" error={form.formState.errors.attendeeType?.message}>
+                          <Select
+                            value={form.watch("attendeeType")}
+                            onValueChange={(v) => form.setValue("attendeeType", v, { shouldValidate: true })}
+                          >
+                            <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Company">Company</SelectItem>
+                              <SelectItem value="Student">Student</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </Field>
-                        <Field label="Country *" error={form.formState.errors.country?.message}>
-                          <Input {...form.register("country")} />
+                        <Field label="Gender *" error={form.formState.errors.gender?.message}>
+                          <Select
+                            value={form.watch("gender")}
+                            onValueChange={(v) => form.setValue("gender", v, { shouldValidate: true })}
+                          >
+                            <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Male">Male</SelectItem>
+                              <SelectItem value="Female">Female</SelectItem>
+                              <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </Field>
-                        <Field label="Website" error={form.formState.errors.website?.message}>
-                          <Input {...form.register("website")} placeholder="https://www.company.dk" />
+                        <Field label="Date of birth *" error={form.formState.errors.dob?.message}>
+                          <Input type="date" {...form.register("dob")} />
+                        </Field>
+                        <Field label="Contact number *" error={form.formState.errors.contactNumber?.message}>
+                          <Input {...form.register("contactNumber")} placeholder="+45 ..." />
                         </Field>
                       </div>
-
-                      <div className="flex justify-end pt-4">
-                        <Button type="button" size="lg" onClick={next}>
-                          Continue <ArrowRight className="ml-2 w-4 h-4" />
-                        </Button>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {step === 2 && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="space-y-6"
-                    >
-                      <h2 className="text-2xl font-semibold mb-2">
-                        Stand selection
-                      </h2>
-
-                      <Field label="Company category *" error={form.formState.errors.category?.message}>
-                        <Select
-                          value={form.watch("category")}
-                          onValueChange={(v) => form.setValue("category", v, { shouldValidate: true })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories.map((c) => (
-                              <SelectItem key={c} value={c}>{c}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </Field>
-
-                      <div>
-                        <Label className="mb-3 block">Stand size *</Label>
-                        <div className="grid sm:grid-cols-2 gap-3">
-                          {stands.map((s) => {
-                            const active = form.watch("standSize") === s.id;
-                            return (
-                              <button
-                                key={s.id}
-                                type="button"
-                                onClick={() => form.setValue("standSize", s.id, { shouldValidate: true })}
-                                className={`text-left p-4 rounded-lg border-2 transition-all ${
-                                  active
-                                    ? "border-primary bg-primary/5"
-                                    : "border-border hover:border-primary/40"
-                                }`}
-                              >
-                                <div className="font-semibold mb-1">{s.label}</div>
-                                <div className="text-sm text-muted-foreground">from {s.price}</div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {form.formState.errors.standSize && (
-                          <p className="text-sm text-destructive mt-2">{form.formState.errors.standSize.message}</p>
-                        )}
-                      </div>
-
-                      <Field label="Brief description of products / services *" error={form.formState.errors.description?.message}>
-                        <Textarea
-                          {...form.register("description")}
-                          rows={5}
-                          placeholder="Tell us what your company does and what you plan to showcase at NordByg 2026."
-                        />
-                      </Field>
-
                       <div className="flex justify-between pt-4">
                         <Button type="button" size="lg" variant="outline" onClick={prev}>
                           <ArrowLeft className="mr-2 w-4 h-4" /> Back
@@ -424,33 +492,110 @@ export default function Register() {
                     </motion.div>
                   )}
 
-                  {step === 3 && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="space-y-6"
-                    >
-                      <h2 className="text-2xl font-semibold mb-2">
-                        Review &amp; submit
-                      </h2>
+                  {/* Step 2 — Additional info */}
+                  {step === 2 && (
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                      <h2 className="text-2xl font-semibold mb-2">Additional info</h2>
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <Field label="Designation *" error={form.formState.errors.designation?.message}>
+                          <Input {...form.register("designation")} placeholder="e.g. Senior Architect" />
+                        </Field>
+                        <Field label="Country *" error={form.formState.errors.country?.message}>
+                          <Input {...form.register("country")} />
+                        </Field>
+                        <Field label="Company URL (optional)" error={form.formState.errors.companyUrl?.message}>
+                          <Input {...form.register("companyUrl")} placeholder="https://www.company.dk" />
+                        </Field>
+                        <Field label="Address *" error={form.formState.errors.address?.message}>
+                          <Input {...form.register("address")} placeholder="Street, City, Postcode" />
+                        </Field>
+                      </div>
+                      <Field label="About yourself *" error={form.formState.errors.aboutYourself?.message}>
+                        <Textarea
+                          {...form.register("aboutYourself")}
+                          rows={5}
+                          placeholder="Tell us about your role, company and why you are attending NordByg 2026."
+                        />
+                      </Field>
+                      <div className="flex justify-between pt-4">
+                        <Button type="button" size="lg" variant="outline" onClick={prev}>
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
+                        </Button>
+                        <Button type="button" size="lg" onClick={next}>
+                          Continue <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
 
+                  {/* Step 3 — Review & submit */}
+                  {step === 3 && (
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                      <h2 className="text-2xl font-semibold mb-2">Review &amp; submit</h2>
+
+                      {/* Review summary */}
                       <div className="space-y-3 rounded-lg border border-border p-5 bg-background">
-                        <Row label="Company" v={form.watch("companyName")} />
-                        <Row label="Contact" v={form.watch("contactPerson")} />
+                        <Row label="Name" v={form.watch("name")} />
                         <Row label="Email" v={form.watch("email")} />
-                        <Row label="Phone" v={form.watch("phone")} />
+                        <Row label="Type" v={form.watch("attendeeType")} />
+                        <Row label="Gender" v={form.watch("gender")} />
+                        <Row label="Date of birth" v={form.watch("dob")} />
+                        <Row label="Designation" v={form.watch("designation")} />
+                        <Row label="Contact" v={form.watch("contactNumber")} />
                         <Row label="Country" v={form.watch("country")} />
-                        <Row label="Website" v={form.watch("website") || "—"} />
-                        <Row label="Category" v={form.watch("category")} />
-                        <Row label="Stand size" v={`${form.watch("standSize")} m²`} />
-                        <div>
-                          <div className="text-xs uppercase tracking-widest text-muted-foreground mb-1">
-                            Description
-                          </div>
-                          <p className="text-sm">{form.watch("description")}</p>
-                        </div>
+                        <Row label="Address" v={form.watch("address")} />
+                        {form.watch("companyUrl") && <Row label="Website" v={form.watch("companyUrl")} />}
                       </div>
 
+                      {/* Interests */}
+                      <InterestCheckboxes
+                        value={form.watch("interestedIn")}
+                        onChange={(v) => form.setValue("interestedIn", v, { shouldValidate: true })}
+                        error={form.formState.errors.interestedIn?.message}
+                      />
+
+                      {/* How you heard */}
+                      <Field label="How did you hear about NordByg? *" error={form.formState.errors.howYouHeard?.message}>
+                        <Select
+                          value={form.watch("howYouHeard")}
+                          onValueChange={(v) => form.setValue("howYouHeard", v, { shouldValidate: true })}
+                        >
+                          <SelectTrigger><SelectValue placeholder="Select an option" /></SelectTrigger>
+                          <SelectContent>
+                            {howYouHeardOptions.map((o) => (
+                              <SelectItem key={o} value={o}>{o}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+
+                      {/* Pass selection */}
+                      <div>
+                        <Label className="mb-3 block">Pass selection *</Label>
+                        <div className="grid sm:grid-cols-2 gap-3">
+                          {visitorPasses.map((p) => {
+                            const active = form.watch("passSelection") === p.id;
+                            return (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => form.setValue("passSelection", p.id, { shouldValidate: true })}
+                                className={`text-left p-4 rounded-lg border-2 transition-all ${
+                                  active ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                                }`}
+                              >
+                                <div className="font-semibold mb-1">{p.label}</div>
+                                <div className="text-sm text-muted-foreground">{p.price}</div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {form.formState.errors.passSelection && (
+                          <p className="text-sm text-destructive mt-2">{form.formState.errors.passSelection.message}</p>
+                        )}
+                      </div>
+
+                      {/* Consent */}
                       <div className="flex items-start gap-3">
                         <Checkbox
                           id="consent"
@@ -460,10 +605,7 @@ export default function Register() {
                           }
                         />
                         <Label htmlFor="consent" className="text-sm leading-relaxed font-normal text-muted-foreground">
-                          I confirm the information above is accurate and I
-                          accept the NordByg Expo 2026 exhibitor terms,
-                          including review by the organising committee before
-                          stand confirmation. *
+                          I confirm that the information provided is accurate and I accept the NordByg Expo 2026 visitor terms and privacy policy. *
                         </Label>
                       </div>
                       {form.formState.errors.consent && (
@@ -497,29 +639,409 @@ export default function Register() {
   );
 }
 
-function Field({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
+// ─── Exhibitor form ───────────────────────────────────────────────────────────
+
+function ExhibitorForm({ onBack }: { onBack: () => void }) {
+  const [step, setStep] = useState(1);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  const form = useForm<ExhibitorData>({
+    resolver: zodResolver(exhibitorSchema),
+    mode: "onTouched",
+    defaultValues: {
+      name: "", email: "", companyName: "", designation: "",
+      role: "", buyerType: "", companyUrl: "", country: "Denmark",
+      address: "", phone: "", standOption: "",
+      interestedIn: [], howYouHeard: "",
+      consent: false as unknown as true,
+    },
+  });
+
+  const stepFields: (keyof ExhibitorData)[][] = [
+    [],
+    ["name", "email", "companyName", "designation"],
+    ["role", "buyerType", "companyUrl", "country", "address", "phone", "standOption"],
+    ["interestedIn", "howYouHeard", "consent"],
+  ];
+
+  const next = async () => {
+    const ok = await form.trigger(stepFields[step]);
+    if (ok) setStep((s) => Math.min(3, s + 1));
+  };
+
+  const prev = () => {
+    if (step === 1) { onBack(); return; }
+    setStep((s) => Math.max(1, s - 1));
+  };
+
+  const onSubmit = async (data: ExhibitorData) => {
+    setSubmitError("");
+    const stand = standOptions.find((s) => s.id === data.standOption);
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: import.meta.env.VITE_WEB3FORMS_KEY,
+          subject: `New Exhibitor Registration — ${data.companyName} · NordByg 2026`,
+          from_name: data.name,
+          "Registration Type": "Exhibitor",
+          "Name": data.name,
+          "Email": data.email,
+          "Company Name": data.companyName,
+          "Designation": data.designation,
+          "Role": data.role,
+          "Buyer Type": data.buyerType,
+          "Company URL": data.companyUrl || "—",
+          "Country": data.country,
+          "Address": data.address,
+          "Phone": data.phone,
+          "Stand Option": stand ? `${stand.label} · ${stand.price}` : data.standOption,
+          "Interested In": data.interestedIn.join(", "),
+          "How They Heard": data.howYouHeard,
+        }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message ?? "Submission failed");
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {
+      setSubmitError("Something went wrong. Please try again or email us directly.");
+    }
+  };
+
+  if (submitted) return <SuccessScreen onReset={onBack} />;
+
+  const steps = ["Contact information", "Stand selection", "Review & submit"];
+
   return (
-    <div>
-      <Label className="mb-2 block">{label}</Label>
-      {children}
-      {error && <p className="text-sm text-destructive mt-1.5">{error}</p>}
-    </div>
+    <Layout>
+      <div className="pt-28 pb-20 min-h-screen">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <Sidebar type="exhibitor" step={step} steps={steps} />
+
+            <div className="lg:col-span-8">
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <Card className="p-6 md:p-10 bg-card border-border">
+
+                  {/* Step 1 — Contact information */}
+                  {step === 1 && (
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Building2 className="w-6 h-6 text-primary" />
+                        <h2 className="text-2xl font-semibold">Contact information</h2>
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <Field label="Full name *" error={form.formState.errors.name?.message}>
+                          <Input {...form.register("name")} placeholder="Your full name" />
+                        </Field>
+                        <Field label="Email *" error={form.formState.errors.email?.message}>
+                          <Input type="email" {...form.register("email")} placeholder="name@company.dk" />
+                        </Field>
+                        <Field label="Company name *" error={form.formState.errors.companyName?.message}>
+                          <Input {...form.register("companyName")} placeholder="e.g. Nordic BuildTech ApS" />
+                        </Field>
+                        <Field label="Designation *" error={form.formState.errors.designation?.message}>
+                          <Input {...form.register("designation")} placeholder="e.g. Sales Director" />
+                        </Field>
+                      </div>
+                      <div className="flex justify-between pt-4">
+                        <Button type="button" size="lg" variant="outline" onClick={prev}>
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
+                        </Button>
+                        <Button type="button" size="lg" onClick={next}>
+                          Continue <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 2 — Stand selection */}
+                  {step === 2 && (
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                      <h2 className="text-2xl font-semibold mb-2">Stand selection</h2>
+                      <div className="grid sm:grid-cols-2 gap-5">
+                        <Field label="Your role *" error={form.formState.errors.role?.message}>
+                          <Select
+                            value={form.watch("role")}
+                            onValueChange={(v) => form.setValue("role", v, { shouldValidate: true })}
+                          >
+                            <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
+                            <SelectContent>
+                              {exhibitorRoles.map((r) => (
+                                <SelectItem key={r} value={r}>{r}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                        <Field label="Buyer type *" error={form.formState.errors.buyerType?.message}>
+                          <Select
+                            value={form.watch("buyerType")}
+                            onValueChange={(v) => form.setValue("buyerType", v, { shouldValidate: true })}
+                          >
+                            <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                            <SelectContent>
+                              {buyerTypes.map((b) => (
+                                <SelectItem key={b} value={b}>{b}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                        <Field label="Company URL (optional)" error={form.formState.errors.companyUrl?.message}>
+                          <Input {...form.register("companyUrl")} placeholder="https://www.company.dk" />
+                        </Field>
+                        <Field label="Country *" error={form.formState.errors.country?.message}>
+                          <Input {...form.register("country")} />
+                        </Field>
+                        <Field label="Phone *" error={form.formState.errors.phone?.message}>
+                          <Input {...form.register("phone")} placeholder="+45 ..." />
+                        </Field>
+                        <Field label="Address *" error={form.formState.errors.address?.message}>
+                          <Input {...form.register("address")} placeholder="Street, City, Postcode" />
+                        </Field>
+                      </div>
+
+                      <div>
+                        <Label className="mb-3 block">Stand option *</Label>
+                        <div className="grid sm:grid-cols-2 gap-3">
+                          {standOptions.map((s) => {
+                            const active = form.watch("standOption") === s.id;
+                            return (
+                              <button
+                                key={s.id}
+                                type="button"
+                                onClick={() => form.setValue("standOption", s.id, { shouldValidate: true })}
+                                className={`text-left p-4 rounded-lg border-2 transition-all ${
+                                  active ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                                }`}
+                              >
+                                <div className="font-semibold mb-1">{s.label}</div>
+                                <div className="text-sm text-muted-foreground">{s.price}</div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {form.formState.errors.standOption && (
+                          <p className="text-sm text-destructive mt-2">{form.formState.errors.standOption.message}</p>
+                        )}
+                      </div>
+
+                      <div className="flex justify-between pt-4">
+                        <Button type="button" size="lg" variant="outline" onClick={prev}>
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
+                        </Button>
+                        <Button type="button" size="lg" onClick={next}>
+                          Continue <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 3 — Review & submit */}
+                  {step === 3 && (
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                      <h2 className="text-2xl font-semibold mb-2">Review &amp; submit</h2>
+
+                      <div className="space-y-3 rounded-lg border border-border p-5 bg-background">
+                        <Row label="Name" v={form.watch("name")} />
+                        <Row label="Email" v={form.watch("email")} />
+                        <Row label="Company" v={form.watch("companyName")} />
+                        <Row label="Designation" v={form.watch("designation")} />
+                        <Row label="Role" v={form.watch("role")} />
+                        <Row label="Buyer type" v={form.watch("buyerType")} />
+                        <Row label="Phone" v={form.watch("phone")} />
+                        <Row label="Country" v={form.watch("country")} />
+                        <Row label="Address" v={form.watch("address")} />
+                        {form.watch("companyUrl") && <Row label="Website" v={form.watch("companyUrl")} />}
+                        <Row label="Stand option" v={`Stand ${form.watch("standOption")}`} />
+                      </div>
+
+                      <InterestCheckboxes
+                        value={form.watch("interestedIn")}
+                        onChange={(v) => form.setValue("interestedIn", v, { shouldValidate: true })}
+                        error={form.formState.errors.interestedIn?.message}
+                      />
+
+                      <Field label="How did you hear about NordByg? *" error={form.formState.errors.howYouHeard?.message}>
+                        <Select
+                          value={form.watch("howYouHeard")}
+                          onValueChange={(v) => form.setValue("howYouHeard", v, { shouldValidate: true })}
+                        >
+                          <SelectTrigger><SelectValue placeholder="Select an option" /></SelectTrigger>
+                          <SelectContent>
+                            {howYouHeardOptions.map((o) => (
+                              <SelectItem key={o} value={o}>{o}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="consent"
+                          checked={form.watch("consent") as unknown as boolean}
+                          onCheckedChange={(v) =>
+                            form.setValue("consent", (v === true) as true, { shouldValidate: true })
+                          }
+                        />
+                        <Label htmlFor="consent" className="text-sm leading-relaxed font-normal text-muted-foreground">
+                          I confirm the information above is accurate and I accept the NordByg Expo 2026 exhibitor terms, including review by the organising committee before stand confirmation. *
+                        </Label>
+                      </div>
+                      {form.formState.errors.consent && (
+                        <p className="text-sm text-destructive">{form.formState.errors.consent.message}</p>
+                      )}
+
+                      {submitError && (
+                        <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-4 py-3">
+                          {submitError}
+                        </p>
+                      )}
+
+                      <div className="flex justify-between pt-4">
+                        <Button type="button" size="lg" variant="outline" onClick={prev}>
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
+                        </Button>
+                        <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
+                          {form.formState.isSubmitting ? "Sending…" : "Submit registration"}
+                          <Check className="ml-2 w-4 h-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </Card>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
   );
 }
 
-function Row({ label, v }: { label: string; v: string }) {
+// ─── Type selection screen ────────────────────────────────────────────────────
+
+export default function Register() {
+  const [type, setType] = useState<"visitor" | "exhibitor" | null>(null);
+
+  if (type === "visitor") return <VisitorForm onBack={() => setType(null)} />;
+  if (type === "exhibitor") return <ExhibitorForm onBack={() => setType(null)} />;
+
   return (
-    <div className="flex items-center justify-between gap-4 text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium text-right">{v}</span>
-    </div>
+    <Layout>
+      <div className="min-h-screen pt-32 pb-20 flex items-center">
+        <div className="container mx-auto px-4 md:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl mx-auto text-center mb-14"
+          >
+            <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
+              NordByg Expo 2026
+            </p>
+            <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-5">
+              How are you joining us?
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Select the registration type that applies to you. You can always come back and choose the other.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {/* Visitor card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <button
+                onClick={() => setType("visitor")}
+                className="w-full text-left group"
+              >
+                <Card className="p-8 h-full border-border hover:border-primary/50 transition-all duration-300 group-hover:bg-primary/5">
+                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+                    <Users className="w-7 h-7 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold mb-3">Visitor</h2>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
+                    Attend NordByg 2026 as a trade visitor. Browse exhibitors, attend conference talks and explore the show floor.
+                  </p>
+                  <div className="space-y-2 mb-8 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      <span>Access to all 4 exhibition halls</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      <span>Full conference programme included</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      <span>Passes from 245 DKK · Free for members</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-primary font-medium">
+                    Register as visitor <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Card>
+              </button>
+            </motion.div>
+
+            {/* Exhibitor card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <button
+                onClick={() => setType("exhibitor")}
+                className="w-full text-left group"
+              >
+                <Card className="p-8 h-full border-border hover:border-primary/50 transition-all duration-300 group-hover:bg-primary/5">
+                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+                    <UserCheck className="w-7 h-7 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold mb-3">Exhibitor</h2>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
+                    Showcase your company, products and services to 12,000+ trade visitors from across the Nordic construction sector.
+                  </p>
+                  <div className="space-y-2 mb-8 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      <span>Shell-scheme or space-only stands</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      <span>9 m² to 72 m² options available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      <span>Reviewed within 3 business days</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-primary font-medium">
+                    Register as exhibitor <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Card>
+              </button>
+            </motion.div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-center mt-10 text-sm text-muted-foreground"
+          >
+            Questions? Email us at{" "}
+            <a href="mailto:info@nordbygexpo.dk" className="text-primary hover:underline">
+              info@nordbygexpo.dk
+            </a>
+          </motion.div>
+        </div>
+      </div>
+    </Layout>
   );
 }

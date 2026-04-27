@@ -154,7 +154,7 @@ export default function Visit() {
               </div>
               <Link href="/register">
                 <Button variant="outline">
-                  Exhibitor registration <ArrowRight className="ml-2 w-4 h-4" />
+                  Registration <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
             </div>

@@ -72,7 +72,7 @@ export function Layout({ children }: LayoutProps) {
           <div className="hidden md:flex items-center gap-4">
             <Link href="/register">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium">
-                Register to Exhibit <ArrowRight className="ml-2 w-4 h-4" />
+                Registration <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
           </div>
@@ -108,7 +108,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="mt-auto pb-8">
               <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
                 <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Register to Exhibit
+                  Registration
                 </Button>
               </Link>
             </div>
@@ -156,7 +156,7 @@ export function Layout({ children }: LayoutProps) {
                 <li><Link href="/programme" className="text-muted-foreground hover:text-primary transition-colors">Conference Programme</Link></li>
                 <li><Link href="/visit" className="text-muted-foreground hover:text-primary transition-colors">Plan Your Visit</Link></li>
                 <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">About NordByg</Link></li>
-                <li><Link href="/register" className="text-muted-foreground hover:text-primary transition-colors">Register as Exhibitor</Link></li>
+                <li><Link href="/register" className="text-muted-foreground hover:text-primary transition-colors">Registration</Link></li>
               </ul>
             </div>
 

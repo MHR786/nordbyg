@@ -172,7 +172,7 @@ export default function Home() {
             alt="Futuristic Danish construction expo hall at dusk"
             className="w-full h-full object-cover opacity-30"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+          <div className="absolute inset-0 bg-linear-to-b from-background/60 via-background/80 to-background" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(245,158,11,0.18),transparent_55%)]" />
         </div>
         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -230,7 +230,7 @@ export default function Home() {
                   size="lg"
                   className="h-14 px-8 text-base bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  Register as Exhibitor
+                  Registration
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
@@ -295,7 +295,7 @@ export default function Home() {
       </section>
 
       {/* STATS STRIP */}
-      <Section className="border-y border-border bg-card/50 !py-14">
+      <Section className="border-y border-border bg-card/50 py-14!">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4">
           {expoStats.map((s, i) => (
             <FadeIn key={s.label} delay={i * 0.06}>
@@ -316,13 +316,13 @@ export default function Home() {
       <Section>
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <FadeIn>
-            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-border">
+            <div className="relative aspect-4/5 rounded-2xl overflow-hidden border border-border">
               <img
                 src={copenhagenCranes}
                 alt="Construction cranes against the Copenhagen skyline"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-background/60 to-transparent" />
             </div>
           </FadeIn>
           <FadeIn delay={0.15}>
@@ -428,7 +428,7 @@ export default function Home() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {exhibitors.map((e, i) => (
             <FadeIn key={e.name} delay={(i % 6) * 0.04} y={20}>
-              <div className="aspect-[3/2] border border-border bg-card flex items-center justify-center px-3 hover-elevate rounded-lg transition-all group">
+              <div className="aspect-3/2 border border-border bg-card flex items-center justify-center px-3 hover-elevate rounded-lg transition-all group">
                 <span className="font-bold text-base md:text-lg tracking-tight text-foreground/80 group-hover:text-primary text-center">
                   {e.name}
                 </span>
@@ -438,17 +438,17 @@ export default function Home() {
         </div>
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           <FadeIn delay={0.05}>
-            <div className="rounded-xl overflow-hidden border border-border aspect-[4/3]">
+            <div className="rounded-xl overflow-hidden border border-border aspect-4/3">
               <img src={boothNetworking} alt="Visitors networking at exhibition booth" className="w-full h-full object-cover" />
             </div>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <div className="rounded-xl overflow-hidden border border-border aspect-[4/3]">
+            <div className="rounded-xl overflow-hidden border border-border aspect-4/3">
               <img src={bimScreens} alt="BIM models on exhibition screens" className="w-full h-full object-cover" />
             </div>
           </FadeIn>
           <FadeIn delay={0.15}>
-            <div className="rounded-xl overflow-hidden border border-border aspect-[4/3]">
+            <div className="rounded-xl overflow-hidden border border-border aspect-4/3">
               <img src={craftsman} alt="Danish craftsman at work" className="w-full h-full object-cover" />
             </div>
           </FadeIn>
@@ -559,7 +559,7 @@ export default function Home() {
                   Interactive floor plan · auto-rotating preview
                 </div>
               </div>
-              <div className="rounded-xl overflow-hidden border border-border aspect-[16/9]">
+              <div className="rounded-xl overflow-hidden border border-border aspect-video">
                 <img src={bellaCenter} alt="Bella Center exterior" className="w-full h-full object-cover" />
               </div>
             </div>
@@ -608,7 +608,7 @@ export default function Home() {
           <FadeIn className="md:col-span-2">
             <div className="aspect-16/10 rounded-2xl overflow-hidden border border-border relative group">
               <img src={timber} alt="Cross-laminated timber construction" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-background via-background/30 to-transparent" />
               <div className="absolute bottom-0 p-8">
                 <div className="text-xs uppercase tracking-widest text-primary mb-2">Sustainability Hall</div>
                 <h3 className="text-2xl md:text-3xl font-bold leading-tight max-w-md">Cross-laminated timber, low-carbon concrete and biobased insulation — under one roof.</h3>
@@ -617,9 +617,9 @@ export default function Home() {
           </FadeIn>
           <div className="grid grid-rows-2 gap-5">
             <FadeIn delay={0.1}>
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden border border-border relative group">
+              <div className="aspect-4/3 rounded-2xl overflow-hidden border border-border relative group">
                 <img src={prefab} alt="Prefab modular construction" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-background to-transparent" />
                 <div className="absolute bottom-0 p-5">
                   <div className="text-xs uppercase tracking-widest text-primary mb-1">Modular</div>
                   <h4 className="text-lg font-semibold leading-tight">Off-site, on-time prefab</h4>
@@ -627,9 +627,9 @@ export default function Home() {
               </div>
             </FadeIn>
             <FadeIn delay={0.2}>
-              <div className="aspect-[4/3] rounded-2xl overflow-hidden border border-border relative group">
+              <div className="aspect-4/3 rounded-2xl overflow-hidden border border-border relative group">
                 <img src={archModel} alt="Architectural model" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-background to-transparent" />
                 <div className="absolute bottom-0 p-5">
                   <div className="text-xs uppercase tracking-widest text-primary mb-1">Architecture</div>
                   <h4 className="text-lg font-semibold leading-tight">From sketch to skyline</h4>
@@ -641,7 +641,7 @@ export default function Home() {
       </Section>
 
       {/* SPONSORS */}
-      <Section className="bg-card/30 border-y border-border !py-16">
+      <Section className="bg-card/30 border-y border-border py-16!">
         <FadeIn>
           <p className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-8">
             2026 partners &amp; sponsors
@@ -723,7 +723,7 @@ export default function Home() {
       </Section>
 
       {/* FINAL CTA */}
-      <Section className="!py-32 relative overflow-hidden">
+      <Section className="py-32! relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(245,158,11,0.15),transparent_60%)]" />
         <div className="absolute inset-0">
           <img src={heroExpo} alt="" className="w-full h-full object-cover opacity-20" />
