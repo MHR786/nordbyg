@@ -412,11 +412,14 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
         }),
       });
       const json = await res.json();
-      if (!json.success) throw new Error(json.message ?? "Submission failed");
+      if (!json.success) {
+        setSubmitError(json.message ?? "Submission failed. Please try again.");
+        return;
+      }
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch {
-      setSubmitError("Something went wrong. Please try again or email us directly.");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Network error. Please check your connection and try again.");
     }
   };
 
@@ -703,11 +706,14 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
         }),
       });
       const json = await res.json();
-      if (!json.success) throw new Error(json.message ?? "Submission failed");
+      if (!json.success) {
+        setSubmitError(json.message ?? "Submission failed. Please try again.");
+        return;
+      }
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch {
-      setSubmitError("Something went wrong. Please try again or email us directly.");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Network error. Please check your connection and try again.");
     }
   };
 
