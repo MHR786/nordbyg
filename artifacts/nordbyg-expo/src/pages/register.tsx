@@ -391,7 +391,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          access_key: import.meta.env.VITE_WEB3FORMS_KEY,
+          access_key: "a7719177-3f12-4efb-b160-21c7e77b46dd",
           subject: `New Visitor Registration — ${data.name} · NordByg 2026`,
           from_name: data.name,
           "Registration Type": "Visitor",
@@ -683,7 +683,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          access_key: import.meta.env.VITE_WEB3FORMS_KEY,
+          access_key: "a7719177-3f12-4efb-b160-21c7e77b46dd",
           subject: `New Exhibitor Registration — ${data.companyName} · NordByg 2026`,
           from_name: data.name,
           "Registration Type": "Exhibitor",
