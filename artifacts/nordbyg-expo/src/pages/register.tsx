@@ -59,6 +59,7 @@ const visitorSchema = z.object({
   name: z.string().min(2, "Full name is required"),
   email: z.string().email("Valid email required"),
   attendeeType: z.string().min(1, "Please select a type"),
+  companyName: z.string(),
   designation: z.string(),
   gender: z.string().min(1, "Please select your gender"),
   dob: z.string().min(1, "Date of birth is required"),
@@ -72,6 +73,9 @@ const visitorSchema = z.object({
   passSelection: z.string().min(1, "Please select a pass"),
   consent: z.literal(true, { message: "You must accept the terms" }),
 }).superRefine((data, ctx) => {
+  if (data.attendeeType === "Company" && data.companyName.trim().length < 2) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Company name is required", path: ["companyName"] });
+  }
   if (data.attendeeType !== "Student" && data.designation.trim().length < 2) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Designation is required", path: ["designation"] });
   }
@@ -362,27 +366,31 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
     resolver: zodResolver(visitorSchema),
     mode: "onTouched",
     defaultValues: {
-      name: "", email: "", attendeeType: "", designation: "",
-      gender: "", dob: "", country: "Denmark", companyUrl: "",
-      address: "", contactNumber: "", aboutYourself: "",
+      name: "", email: "", attendeeType: "", companyName: "",
+      designation: "", gender: "", dob: "", country: "Denmark",
+      companyUrl: "", address: "", contactNumber: "", aboutYourself: "",
       interestedIn: [], howYouHeard: "", passSelection: "",
       consent: false as unknown as true,
     },
   });
 
-  const isStudent = form.watch("attendeeType") === "Student";
+  const attendeeType = form.watch("attendeeType");
+  const isStudent = attendeeType === "Student";
+  const isCompany = attendeeType === "Company";
 
   const stepFields: (keyof VisitorData)[][] = [
     [],
     ["name", "email", "attendeeType", "gender", "dob", "contactNumber"],
-    ["designation", "country", "companyUrl", "address", "aboutYourself"],
+    ["companyName", "designation", "country", "companyUrl", "address", "aboutYourself"],
     ["interestedIn", "howYouHeard", "passSelection", "consent"],
   ];
 
   const next = async () => {
-    const fields = stepFields[step].filter(
-      (f) => !(isStudent && (f === "designation" || f === "companyUrl"))
-    );
+    const fields = stepFields[step].filter((f) => {
+      if (f === "companyName" && !isCompany) return false;
+      if ((f === "designation" || f === "companyUrl") && isStudent) return false;
+      return true;
+    });
     const ok = await form.trigger(fields);
     if (ok) setStep((s) => Math.min(3, s + 1));
   };
@@ -407,6 +415,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
           "Name": data.name,
           "Email": data.email,
           "Attendee Type": data.attendeeType,
+          ...(data.attendeeType === "Company" && { "Company Name": data.companyName }),
           ...(data.attendeeType !== "Student" && { "Designation": data.designation }),
           "Gender": data.gender,
           "Date of Birth": data.dob,
@@ -487,7 +496,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           </Select>
                         </Field>
                         <Field label="Date of birth *" error={form.formState.errors.dob?.message}>
-                          <Input type="date" {...form.register("dob")} />
+                          <Input type="date" {...form.register("dob")} className="[&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-80" />
                         </Field>
                         <Field label="Contact number *" error={form.formState.errors.contactNumber?.message}>
                           <Input {...form.register("contactNumber")} placeholder="+45 ..." />
@@ -509,6 +518,11 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                       <h2 className="text-2xl font-semibold mb-2">Additional info</h2>
                       <div className="grid sm:grid-cols-2 gap-5">
+                        {isCompany && (
+                          <Field label="Company name *" error={form.formState.errors.companyName?.message}>
+                            <Input {...form.register("companyName")} placeholder="e.g. Skanska Danmark A/S" />
+                          </Field>
+                        )}
                         {!isStudent && (
                           <Field label="Designation *" error={form.formState.errors.designation?.message}>
                             <Input {...form.register("designation")} placeholder="e.g. Senior Architect" />
@@ -554,6 +568,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                         <Row label="Name" v={form.watch("name")} />
                         <Row label="Email" v={form.watch("email")} />
                         <Row label="Type" v={form.watch("attendeeType")} />
+                        {isCompany && <Row label="Company" v={form.watch("companyName")} />}
                         <Row label="Gender" v={form.watch("gender")} />
                         <Row label="Date of birth" v={form.watch("dob")} />
                         {!isStudent && <Row label="Designation" v={form.watch("designation")} />}
