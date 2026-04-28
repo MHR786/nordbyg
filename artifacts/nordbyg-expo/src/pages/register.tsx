@@ -63,6 +63,8 @@ const visitorSchema = z.object({
   designation: z.string(),
   gender: z.string().min(1, "Please select your gender"),
   dob: z.string().min(1, "Date of birth is required"),
+  docType: z.string().min(1, "Please select a document type"),
+  docNumber: z.string().min(3, "Document number is required"),
   country: z.string().min(2, "Country is required"),
   companyUrl: z.string().url("Valid URL required").or(z.literal("")),
   address: z.string().min(5, "Address is required"),
@@ -97,6 +99,8 @@ const exhibitorSchema = z.object({
   email: z.string().email("Valid email required"),
   companyName: z.string().min(2, "Company name is required"),
   designation: z.string().min(2, "Designation is required"),
+  docType: z.string().min(1, "Please select a document type"),
+  docNumber: z.string().min(3, "Document number is required"),
   role: z.string().min(1, "Please select a role"),
   buyerType: z.string().min(1, "Please select a type"),
   companyUrl: z.string().url("Valid URL required").or(z.literal("")),
@@ -367,9 +371,9 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
     mode: "onTouched",
     defaultValues: {
       name: "", email: "", attendeeType: "", companyName: "",
-      designation: "", gender: "", dob: "", country: "Denmark",
-      companyUrl: "", address: "", contactNumber: "", aboutYourself: "",
-      interestedIn: [], howYouHeard: "", passSelection: "",
+      designation: "", gender: "", dob: "", docType: "", docNumber: "",
+      country: "Denmark", companyUrl: "", address: "", contactNumber: "",
+      aboutYourself: "", interestedIn: [], howYouHeard: "", passSelection: "",
       consent: false as unknown as true,
     },
   });
@@ -380,7 +384,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
 
   const stepFields: (keyof VisitorData)[][] = [
     [],
-    ["name", "email", "attendeeType", "gender", "dob", "contactNumber"],
+    ["name", "email", "attendeeType", "gender", "dob", "docType", "docNumber", "contactNumber"],
     ["companyName", "designation", "country", "companyUrl", "address", "aboutYourself"],
     ["interestedIn", "howYouHeard", "passSelection", "consent"],
   ];
@@ -419,6 +423,8 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
           ...(data.attendeeType !== "Student" && { "Designation": data.designation }),
           "Gender": data.gender,
           "Date of Birth": data.dob,
+          "Document Type": data.docType,
+          "Document Number": data.docNumber,
           "Country": data.country,
           ...(data.attendeeType !== "Student" && data.companyUrl && { "Company URL": data.companyUrl }),
           "Address": data.address,
@@ -501,6 +507,21 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                         <Field label="Contact number *" error={form.formState.errors.contactNumber?.message}>
                           <Input {...form.register("contactNumber")} placeholder="+45 ..." />
                         </Field>
+                        <Field label="Document type *" error={form.formState.errors.docType?.message}>
+                          <Select
+                            value={form.watch("docType")}
+                            onValueChange={(v) => form.setValue("docType", v, { shouldValidate: true })}
+                          >
+                            <SelectTrigger><SelectValue placeholder="Select document type" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Passport">Passport</SelectItem>
+                              <SelectItem value="ID Card">ID Card</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                        <Field label="Document number *" error={form.formState.errors.docNumber?.message}>
+                          <Input {...form.register("docNumber")} placeholder="e.g. AB1234567" />
+                        </Field>
                       </div>
                       <div className="flex justify-between pt-4">
                         <Button type="button" size="lg" variant="outline" onClick={prev}>
@@ -571,6 +592,8 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                         {isCompany && <Row label="Company" v={form.watch("companyName")} />}
                         <Row label="Gender" v={form.watch("gender")} />
                         <Row label="Date of birth" v={form.watch("dob")} />
+                        <Row label="Document type" v={form.watch("docType")} />
+                        <Row label="Document number" v={form.watch("docNumber")} />
                         {!isStudent && <Row label="Designation" v={form.watch("designation")} />}
                         <Row label="Contact" v={form.watch("contactNumber")} />
                         <Row label="Country" v={form.watch("country")} />
@@ -682,16 +705,16 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
     mode: "onTouched",
     defaultValues: {
       name: "", email: "", companyName: "", designation: "",
-      role: "", buyerType: "", companyUrl: "", country: "Denmark",
-      address: "", phone: "", standOption: "",
-      interestedIn: [], howYouHeard: "",
+      docType: "", docNumber: "", role: "", buyerType: "",
+      companyUrl: "", country: "Denmark", address: "", phone: "",
+      standOption: "", interestedIn: [], howYouHeard: "",
       consent: false as unknown as true,
     },
   });
 
   const stepFields: (keyof ExhibitorData)[][] = [
     [],
-    ["name", "email", "companyName", "designation"],
+    ["name", "email", "companyName", "designation", "docType", "docNumber"],
     ["role", "buyerType", "companyUrl", "country", "address", "phone", "standOption"],
     ["interestedIn", "howYouHeard", "consent"],
   ];
@@ -722,6 +745,8 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
           "Email": data.email,
           "Company Name": data.companyName,
           "Designation": data.designation,
+          "Document Type": data.docType,
+          "Document Number": data.docNumber,
           "Role": data.role,
           "Buyer Type": data.buyerType,
           "Company URL": data.companyUrl || "—",
@@ -779,6 +804,21 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                         </Field>
                         <Field label="Designation *" error={form.formState.errors.designation?.message}>
                           <Input {...form.register("designation")} placeholder="e.g. Sales Director" />
+                        </Field>
+                        <Field label="Document type *" error={form.formState.errors.docType?.message}>
+                          <Select
+                            value={form.watch("docType")}
+                            onValueChange={(v) => form.setValue("docType", v, { shouldValidate: true })}
+                          >
+                            <SelectTrigger><SelectValue placeholder="Select document type" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Passport">Passport</SelectItem>
+                              <SelectItem value="ID Card">ID Card</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </Field>
+                        <Field label="Document number *" error={form.formState.errors.docNumber?.message}>
+                          <Input {...form.register("docNumber")} placeholder="e.g. AB1234567" />
                         </Field>
                       </div>
                       <div className="flex justify-between pt-4">
@@ -883,6 +923,8 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                         <Row label="Email" v={form.watch("email")} />
                         <Row label="Company" v={form.watch("companyName")} />
                         <Row label="Designation" v={form.watch("designation")} />
+                        <Row label="Document type" v={form.watch("docType")} />
+                        <Row label="Document number" v={form.watch("docNumber")} />
                         <Row label="Role" v={form.watch("role")} />
                         <Row label="Buyer type" v={form.watch("buyerType")} />
                         <Row label="Phone" v={form.watch("phone")} />
