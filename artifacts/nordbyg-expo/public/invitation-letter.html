@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NordByg Expo 2026 — Visitor Invitation Letter</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 13pt;
+      color: #1a1a1a;
+      background: #f0f0f0;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 20px auto;
+      background: #ffffff;
+      padding: 18mm 20mm 18mm 20mm;
+      box-shadow: 0 2px 18px rgba(0,0,0,0.15);
+      position: relative;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      border-bottom: 3px solid #d97706;
+      margin-bottom: 28px;
+    }
+
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-mark {
+      width: 52px;
+      height: 52px;
+      background: #d97706;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+    }
+
+    .logo-mark span {
+      color: #fff;
+      font-family: "Courier New", monospace;
+      font-size: 18pt;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .logo-text {
+      line-height: 1.2;
+    }
+
+    .logo-text .name {
+      font-size: 20pt;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      font-family: Arial, sans-serif;
+      color: #1a1a1a;
+    }
+
+    .logo-text .name span {
+      color: #d97706;
+    }
+
+    .logo-text .tagline {
+      font-size: 8.5pt;
+      color: #6b6b6b;
+      font-family: Arial, sans-serif;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      text-align: right;
+      font-family: Arial, sans-serif;
+      font-size: 8.5pt;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .header-right .expo-dates {
+      font-size: 10pt;
+      font-weight: 700;
+      color: #d97706;
+      margin-bottom: 3px;
+    }
+
+    /* ── Meta ── */
+    .meta {
+      font-family: Arial, sans-serif;
+      font-size: 10pt;
+      color: #444;
+      margin-bottom: 20px;
+    }
+
+    .meta .ref {
+      margin-bottom: 4px;
+    }
+
+    /* ── Salutation ── */
+    .salutation {
+      font-size: 13pt;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    /* ── Registrant block ── */
+    .registrant {
+      margin-bottom: 20px;
+      line-height: 1.7;
+    }
+
+    .registrant .full-name {
+      font-size: 14pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .registrant .detail {
+      font-size: 11.5pt;
+      color: #333;
+    }
+
+    /* ── Details table ── */
+    .details-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 22px 0 24px 0;
+    }
+
+    .details-table tr {
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .details-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .details-table td {
+      padding: 7px 10px 7px 0;
+      vertical-align: top;
+    }
+
+    .details-table td.label {
+      font-weight: 700;
+      width: 46%;
+      font-size: 11.5pt;
+      color: #1a1a1a;
+      padding-right: 16px;
+    }
+
+    .details-table td.value {
+      font-size: 11.5pt;
+      color: #2a2a2a;
+    }
+
+    /* ── Reg number banner ── */
+    .reg-banner {
+      background: #fef3c7;
+      border-left: 4px solid #d97706;
+      padding: 10px 14px;
+      margin-bottom: 22px;
+      font-family: Arial, sans-serif;
+      font-size: 10.5pt;
+    }
+
+    .reg-banner .reg-label {
+      font-size: 8.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #92400e;
+      margin-bottom: 2px;
+    }
+
+    .reg-banner .reg-num {
+      font-size: 14pt;
+      font-weight: 700;
+      color: #92400e;
+      letter-spacing: 1px;
+    }
+
+    /* ── Body text ── */
+    .body-text {
+      font-size: 12pt;
+      line-height: 1.75;
+      color: #222;
+      margin-bottom: 14px;
+      text-align: justify;
+    }
+
+    .body-text strong {
+      font-weight: 700;
+    }
+
+    /* ── Signature ── */
+    .signature-section {
+      margin-top: 30px;
+    }
+
+    .closing {
+      font-size: 12pt;
+      margin-bottom: 50px;
+    }
+
+    .sig-name {
+      font-size: 13pt;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .sig-title {
+      font-size: 11pt;
+      color: #444;
+      margin-bottom: 1px;
+    }
+
+    .sig-org {
+      font-size: 10.5pt;
+      color: #666;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 40px;
+      padding-top: 14px;
+      border-top: 2px solid #d97706;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-family: Arial, sans-serif;
+      font-size: 8pt;
+      color: #777;
+      line-height: 1.6;
+    }
+
+    .footer .footer-left {
+      max-width: 55%;
+    }
+
+    .footer .footer-right {
+      text-align: right;
+    }
+
+    .footer strong {
+      color: #444;
+    }
+
+    /* ── Print ── */
+    @media print {
+      body { background: #fff; }
+      .page { margin: 0; box-shadow: none; width: 100%; min-height: auto; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Print button (hidden on print) -->
+  <div class="no-print" style="text-align:center;padding:14px;font-family:Arial,sans-serif;font-size:10pt;background:#1a1a1a;color:#fff;">
+    <strong>Preview mode</strong> &nbsp;·&nbsp;
+    <a href="#" onclick="window.print();return false;" style="color:#d97706;font-weight:700;text-decoration:none;">⬡ Print / Save as PDF</a>
+  </div>
+
+  <div class="page">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-block">
+        <div class="logo-mark"><span>NB</span></div>
+        <div class="logo-text">
+          <div class="name">NordByg <span>Expo</span></div>
+          <div class="tagline">Denmark's Construction &amp; Building Trade Show</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="expo-dates">15 — 17 June 2026</div>
+        <div>Bella Center Copenhagen</div>
+        <div>Center Boulevard 5, 2300 København S</div>
+        <div>www.nordexpo.dk</div>
+        <div>info@nordexpo.dk</div>
+      </div>
+    </div>
+
+    <!-- Date & Reference -->
+    <div class="meta">
+      <div class="ref">Date: April 29, 2026</div>
+      <div class="ref">Ref: NB2026-VIS-00847</div>
+    </div>
+
+    <!-- Salutation -->
+    <p class="salutation">To Whom It May Concern:</p>
+
+    <!-- Registrant address block -->
+    <div class="registrant">
+      <div class="full-name">Khurram Shahzad</div>
+      <div class="detail">CEO, Khurram Builders</div>
+      <div class="detail">Pakistan</div>
+    </div>
+
+    <!-- Registration number -->
+    <div class="reg-banner">
+      <div class="reg-label">Registration Number</div>
+      <div class="reg-num">NB-2026-847</div>
+    </div>
+
+    <!-- Details table -->
+    <table class="details-table">
+      <tr>
+        <td class="label">Full Name:</td>
+        <td class="value">KHURRAM SHAHZAD</td>
+      </tr>
+      <tr>
+        <td class="label">Designation:</td>
+        <td class="value">Chief Executive Officer, Khurram Builders</td>
+      </tr>
+      <tr>
+        <td class="label">Country of Residence:</td>
+        <td class="value">Pakistan</td>
+      </tr>
+      <tr>
+        <td class="label">Date of Birth:</td>
+        <td class="value">February 9, 1984</td>
+      </tr>
+      <tr>
+        <td class="label">Passport Number:</td>
+        <td class="value">LE5167091</td>
+      </tr>
+      <tr>
+        <td class="label">Passport Issue Date:</td>
+        <td class="value">August 2, 2023</td>
+      </tr>
+      <tr>
+        <td class="label">Passport Expiry Date:</td>
+        <td class="value">July 2, 2028</td>
+      </tr>
+      <tr>
+        <td class="label">Registration Type:</td>
+        <td class="value">Visitor — Company Representative</td>
+      </tr>
+      <tr>
+        <td class="label">Pass Category:</td>
+        <td class="value">3-Day Trade Pass (15 – 17 June 2026)</td>
+      </tr>
+    </table>
+
+    <!-- Body paragraphs -->
+    <p class="body-text">
+      Please let this letter serve as official verification that <strong>KHURRAM SHAHZAD</strong>
+      has been approved and registered to attend the <strong>NordByg Expo 2026</strong>, to be held
+      at <strong>Bella Center Copenhagen</strong>, Center Boulevard 5, 2300 København S, Denmark,
+      from <strong>June 15 to 17, 2026</strong>.
+    </p>
+
+    <p class="body-text">
+      NordByg Expo is Scandinavia's premier trade exhibition for the construction and building
+      industry, bringing together over <strong>350 exhibitors</strong> from across Denmark and the
+      Nordic region, more than <strong>12,000 trade visitors</strong> from 80+ countries, and a
+      comprehensive conference programme spanning sustainable materials, BIM technology, heavy
+      machinery, and architecture &amp; urban design.
+    </p>
+
+    <p class="body-text">
+      Mr. Shahzad is attending in his capacity as a <strong>Company Representative and
+      Visitor</strong>. His registration has been fully processed and confirmed. We respectfully
+      request that the relevant authorities provide all necessary assistance required for his
+      travel and entry, including the issuance of a relevant visa where applicable.
+    </p>
+
+    <p class="body-text">
+      Should you require any additional information or supporting documentation, please do not
+      hesitate to contact our international registrations office at
+      <strong>info@nordexpo.dk</strong>.
+    </p>
+
+    <!-- Signature -->
+    <div class="signature-section">
+      <p class="closing">Sincerely,</p>
+      <div style="margin-bottom:8px;font-size:20pt;font-family:'Times New Roman',serif;font-style:italic;color:#333;">
+        &#x1D4D5;&#x1D4F4;&#x1D4F7;&#x1D4ED;&#x1D501;&#x1D4F0;&#x1D4F4;
+      </div>
+      <div class="sig-name">NordByg Expo Secretariat</div>
+      <div class="sig-title">International Registrations &amp; Visitor Relations</div>
+      <div class="sig-org">NordByg Expo 2026 — Bella Center Copenhagen</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-left">
+        NordByg Expo is Denmark's flagship annual trade show for the construction and building
+        industry, operated under the NordExpo Sekretariat. This letter is issued for official
+        registration and travel purposes only.
+      </div>
+      <div class="footer-right">
+        <strong>NordExpo Sekretariat</strong><br />
+        Bella Center, Center Boulevard 5<br />
+        2300 København S, Denmark<br />
+        info@nordexpo.dk &nbsp;·&nbsp; nordexpo.dk
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
