@@ -1,6 +1,6 @@
 ﻿import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, ArrowRight, MapPin, Calendar, Mail, Phone } from "lucide-react";
+import { Menu, X, ArrowRight, MapPin, Calendar, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -132,21 +132,9 @@ export function Layout({ children }: LayoutProps) {
                 </div>
                 <span className="text-xl font-bold tracking-tight">NordByg <span className="text-primary">Expo</span></span>
               </Link>
-              <p className="text-muted-foreground text-sm mb-6 max-w-xs">
+              <p className="text-muted-foreground text-sm max-w-xs">
                 Scandinavia's premier destination for construction innovation, BIM tech, and sustainable building materials.
               </p>
-              <div className="flex space-x-4">
-                {/* Social placeholders */}
-                <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                  in
-                </a>
-                <a href="https://twitter.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                  X
-                </a>
-                <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                  ig
-                </a>
-              </div>
             </div>
 
             <div>
@@ -169,15 +157,11 @@ export function Layout({ children }: LayoutProps) {
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
                   <Calendar className="w-5 h-5 text-primary shrink-0" />
-                  <span>15-17 September 2026</span>
+                  <span>15-17 June 2026</span>
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
                   <Mail className="w-5 h-5 text-primary shrink-0" />
                   <a href="mailto:info@nordexpo.dk" className="hover:text-primary transition-colors">info@nordexpo.dk</a>
-                </li>
-                <li className="flex items-center gap-3 text-muted-foreground">
-                  <Phone className="w-5 h-5 text-primary shrink-0" />
-                  <a href="tel:+4532528811" className="hover:text-primary transition-colors">+45 32 52 88 11</a>
                 </li>
               </ul>
             </div>

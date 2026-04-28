@@ -190,15 +190,7 @@ export default function About() {
               </p>
               <div className="space-y-4 text-sm">
                 <div>
-                  <div className="text-xs uppercase text-muted-foreground tracking-widest">Press</div>
-                  <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">info@nordexpo.dk</a>
-                </div>
-                <div>
-                  <div className="text-xs uppercase text-muted-foreground tracking-widest">Exhibitors</div>
-                  <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">info@nordexpo.dk</a>
-                </div>
-                <div>
-                  <div className="text-xs uppercase text-muted-foreground tracking-widest">General</div>
+                  <div className="text-xs uppercase text-muted-foreground tracking-widest">Email</div>
                   <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">info@nordexpo.dk</a>
                 </div>
               </div>

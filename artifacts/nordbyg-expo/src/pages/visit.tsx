@@ -76,15 +76,15 @@ export default function Visit() {
               <h2 className="text-xl font-semibold mb-3">Opening hours</h2>
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex justify-between">
-                  <span>Tuesday 15 September</span>
+                  <span>Tuesday 15 June</span>
                   <span className="font-medium text-foreground">09:00 — 18:00</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Wednesday 16 September</span>
+                  <span>Wednesday 16 June</span>
                   <span className="font-medium text-foreground">09:00 — 18:00</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Thursday 17 September</span>
+                  <span>Thursday 17 June</span>
                   <span className="font-medium text-foreground">09:00 — 17:00</span>
                 </li>
               </ul>

@@ -59,7 +59,7 @@ const visitorSchema = z.object({
   name: z.string().min(2, "Full name is required"),
   email: z.string().email("Valid email required"),
   attendeeType: z.string().min(1, "Please select a type"),
-  designation: z.string().min(2, "Designation is required"),
+  designation: z.string(),
   gender: z.string().min(1, "Please select your gender"),
   dob: z.string().min(1, "Date of birth is required"),
   country: z.string().min(2, "Country is required"),
@@ -71,6 +71,10 @@ const visitorSchema = z.object({
   howYouHeard: z.string().min(1, "Please select an option"),
   passSelection: z.string().min(1, "Please select a pass"),
   consent: z.literal(true, { message: "You must accept the terms" }),
+}).superRefine((data, ctx) => {
+  if (data.attendeeType !== "Student" && data.designation.trim().length < 2) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Designation is required", path: ["designation"] });
+  }
 });
 
 type VisitorData = z.infer<typeof visitorSchema>;
@@ -223,7 +227,7 @@ function Sidebar({
         <Card className="p-5 bg-card mb-5 border-border">
           <div className="flex items-center gap-3 mb-3">
             <Calendar className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">15 — 17 September 2026</span>
+            <span className="text-sm font-medium">15 — 17 June 2026</span>
           </div>
           <div className="flex items-center gap-3 mb-3">
             <MapPin className="w-4 h-4 text-primary" />
@@ -366,6 +370,8 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
     },
   });
 
+  const isStudent = form.watch("attendeeType") === "Student";
+
   const stepFields: (keyof VisitorData)[][] = [
     [],
     ["name", "email", "attendeeType", "gender", "dob", "contactNumber"],
@@ -374,7 +380,10 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
   ];
 
   const next = async () => {
-    const ok = await form.trigger(stepFields[step]);
+    const fields = stepFields[step].filter(
+      (f) => !(isStudent && (f === "designation" || f === "companyUrl"))
+    );
+    const ok = await form.trigger(fields);
     if (ok) setStep((s) => Math.min(3, s + 1));
   };
 
@@ -398,11 +407,11 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
           "Name": data.name,
           "Email": data.email,
           "Attendee Type": data.attendeeType,
-          "Designation": data.designation,
+          ...(data.attendeeType !== "Student" && { "Designation": data.designation }),
           "Gender": data.gender,
           "Date of Birth": data.dob,
           "Country": data.country,
-          "Company URL": data.companyUrl || "—",
+          ...(data.attendeeType !== "Student" && data.companyUrl && { "Company URL": data.companyUrl }),
           "Address": data.address,
           "Contact Number": data.contactNumber,
           "About": data.aboutYourself,
@@ -500,15 +509,19 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
                       <h2 className="text-2xl font-semibold mb-2">Additional info</h2>
                       <div className="grid sm:grid-cols-2 gap-5">
-                        <Field label="Designation *" error={form.formState.errors.designation?.message}>
-                          <Input {...form.register("designation")} placeholder="e.g. Senior Architect" />
-                        </Field>
+                        {!isStudent && (
+                          <Field label="Designation *" error={form.formState.errors.designation?.message}>
+                            <Input {...form.register("designation")} placeholder="e.g. Senior Architect" />
+                          </Field>
+                        )}
                         <Field label="Country *" error={form.formState.errors.country?.message}>
                           <Input {...form.register("country")} />
                         </Field>
-                        <Field label="Company URL (optional)" error={form.formState.errors.companyUrl?.message}>
-                          <Input {...form.register("companyUrl")} placeholder="https://www.company.dk" />
-                        </Field>
+                        {!isStudent && (
+                          <Field label="Company URL (optional)" error={form.formState.errors.companyUrl?.message}>
+                            <Input {...form.register("companyUrl")} placeholder="https://www.company.dk" />
+                          </Field>
+                        )}
                         <Field label="Address *" error={form.formState.errors.address?.message}>
                           <Input {...form.register("address")} placeholder="Street, City, Postcode" />
                         </Field>
@@ -543,11 +556,11 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                         <Row label="Type" v={form.watch("attendeeType")} />
                         <Row label="Gender" v={form.watch("gender")} />
                         <Row label="Date of birth" v={form.watch("dob")} />
-                        <Row label="Designation" v={form.watch("designation")} />
+                        {!isStudent && <Row label="Designation" v={form.watch("designation")} />}
                         <Row label="Contact" v={form.watch("contactNumber")} />
                         <Row label="Country" v={form.watch("country")} />
                         <Row label="Address" v={form.watch("address")} />
-                        {form.watch("companyUrl") && <Row label="Website" v={form.watch("companyUrl")} />}
+                        {!isStudent && form.watch("companyUrl") && <Row label="Website" v={form.watch("companyUrl")} />}
                       </div>
 
                       {/* Interests */}

@@ -1,11 +1,10 @@
 ﻿import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Link } from "wouter";
 import {
   ArrowRight,
   Calendar,
   MapPin,
-  PlayCircle,
   Download,
   Quote,
   ChevronRight,
@@ -20,14 +19,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-  DialogHeader,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import { HeroScene, FloorPlanScene } from "@/components/three-scene";
 import { WebGLBoundary } from "@/components/webgl-boundary";
 import { Counter } from "@/components/counter";
@@ -55,7 +46,7 @@ function downloadBrochure() {
   const text = `NORDBYG EXPO 2026 — DENMARK'S CONSTRUCTION & BUILDING TRADE SHOW
 ================================================================
 
-Dates:    15 — 17 September 2026
+Dates:    15 — 17 June 2026
 Venue:    Bella Center Copenhagen, Center Boulevard 5, 2300 København S
 Hours:    Tuesday — Thursday  09:00 — 18:00
 
@@ -94,7 +85,6 @@ CONTACT
 -------
 NordByg Expo Sekretariat
 Email:  info@nordexpo.dk
-Phone:  +45 32 52 88 11
 
 Register today at nordexpo.dk/register
 `;
@@ -157,7 +147,6 @@ export default function Home() {
   });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const [trailerOpen, setTrailerOpen] = useState(false);
 
   return (
     <Layout>
@@ -234,23 +223,6 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link href="/visit">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-14 px-8 text-base bg-background/40 backdrop-blur-md"
-                >
-                  Get Visitor Ticket
-                </Button>
-              </Link>
-              <Button
-                size="lg"
-                variant="ghost"
-                onClick={() => setTrailerOpen(true)}
-                className="h-14 px-4 text-base text-foreground/80 hover:text-primary"
-              >
-                <PlayCircle className="mr-2 w-6 h-6" /> Watch trailer
-              </Button>
             </motion.div>
 
             <motion.div
@@ -261,7 +233,7 @@ export default function Home() {
             >
               <div className="flex items-center gap-2 text-foreground/80">
                 <Calendar className="w-5 h-5 text-primary" />
-                <span className="font-medium">15 — 17 September 2026</span>
+                <span className="font-medium">15 — 17 June 2026</span>
               </div>
               <div className="flex items-center gap-2 text-foreground/80">
                 <MapPin className="w-5 h-5 text-primary" />
@@ -273,25 +245,6 @@ export default function Home() {
           </div>
         </motion.div>
 
-        <Dialog open={trailerOpen} onOpenChange={setTrailerOpen}>
-          <DialogContent className="max-w-4xl p-0 bg-black border-border">
-            <DialogHeader className="sr-only">
-              <DialogTitle>NordByg Expo 2026 trailer</DialogTitle>
-              <DialogDescription>
-                Construction trade show highlights video.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="aspect-video w-full">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/L0MK7qz13bU?autoplay=1"
-                title="NordByg 2026 trailer"
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
       </section>
 
       {/* STATS STRIP */}
