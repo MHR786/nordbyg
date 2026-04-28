@@ -14,6 +14,7 @@ import {
   Building2,
   Users,
   UserCheck,
+  BadgeCheck,
 } from "lucide-react";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,86 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
+
+// ─── Registrant lookup database ──────────────────────────────────────────────
+
+const registrantDB = [
+  {
+    regNumber: "NB-2026-847",
+    name: "Khurram Shahzad",
+    designation: "Chief Executive Officer",
+    company: "Khurram Builders",
+    country: "Pakistan",
+    dob: "February 9, 1984",
+    passport: "LE5167091",
+    passportExpiry: "July 2, 2028",
+    passType: "3-Day Trade Pass",
+    regType: "Visitor — Company Representative",
+    regDate: "April 29, 2026",
+    ref: "NB2026-VIS-00847",
+  },
+];
+
+type Registrant = (typeof registrantDB)[0];
+
+// ─── Barcode SVG ─────────────────────────────────────────────────────────────
+
+function Barcode({ code }: { code: string }) {
+  const bars: { x: number; w: number; h: number }[] = [];
+  let x = 0;
+  for (let i = 0; i < 40; i++) {
+    const ch = code.charCodeAt(i % code.length);
+    const w = ((ch + i * 7) % 3) + 1;
+    const h = 38 + ((ch * 3 + i * 5) % 24);
+    bars.push({ x, w, h });
+    x += w + 1.5;
+  }
+  return (
+    <svg width="190" height="62" viewBox={`0 0 ${x} 62`} xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
+      {bars.map((b, i) => (
+        <rect key={i} x={b.x} y={62 - b.h} width={b.w} height={b.h} fill="#1e293b" />
+      ))}
+    </svg>
+  );
+}
+
+// ─── QR code SVG ─────────────────────────────────────────────────────────────
+
+function QRGrid({ code }: { code: string }) {
+  const size = 21;
+  const cs = 5;
+  const cells: boolean[] = [];
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      let black = false;
+      if (r < 7 && c < 7) {
+        black = r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4);
+      } else if (r < 7 && c >= 14) {
+        const lc = c - 14;
+        black = r === 0 || r === 6 || lc === 0 || lc === 6 || (r >= 2 && r <= 4 && lc >= 2 && lc <= 4);
+      } else if (r >= 14 && c < 7) {
+        const lr = r - 14;
+        black = lr === 0 || lr === 6 || c === 0 || c === 6 || (lr >= 2 && lr <= 4 && c >= 2 && c <= 4);
+      } else {
+        const idx = r * size + c;
+        const ch = code.charCodeAt(idx % code.length);
+        black = ((ch + r * 3 + c * 7 + idx) % 3) !== 0;
+      }
+      cells.push(black);
+    }
+  }
+  const total = size * cs + 8;
+  return (
+    <svg width={total} height={total} xmlns="http://www.w3.org/2000/svg">
+      <rect width={total} height={total} fill="white" />
+      {cells.map((black, i) =>
+        black ? (
+          <rect key={i} x={(i % size) * cs + 4} y={Math.floor(i / size) * cs + 4} width={cs} height={cs} fill="#0f172a" />
+        ) : null
+      )}
+    </svg>
+  );
+}
 
 // ─── Shared data ──────────────────────────────────────────────────────────────
 
@@ -997,13 +1078,249 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
   );
 }
 
+// ─── Registration confirmation card ──────────────────────────────────────────
+
+function RegistrationCard({ r, onBack }: { r: Registrant; onBack: () => void }) {
+  return (
+    <Layout>
+      <style>{`@media print { .no-print { display: none !important; } }`}</style>
+      <div className="pt-28 pb-20 min-h-screen">
+        <div className="container mx-auto px-4 md:px-6">
+
+          {/* Action bar */}
+          <div className="no-print flex items-center justify-between mb-6 max-w-4xl mx-auto">
+            <Button variant="outline" onClick={onBack}>
+              <ArrowLeft className="mr-2 w-4 h-4" /> Back
+            </Button>
+            <Button onClick={() => window.print()}>
+              Print / Save as PDF
+            </Button>
+          </div>
+
+          {/* Printable card — white background for document feel */}
+          <div className="bg-white text-slate-900 rounded-xl overflow-hidden shadow-2xl max-w-4xl mx-auto">
+
+            {/* Banner */}
+            <div className="flex items-center justify-between px-8 py-5" style={{ background: "linear-gradient(135deg,#0f172a 0%,#1e293b 100%)" }}>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-md flex items-center justify-center" style={{ background: "#d97706" }}>
+                  <span className="text-white font-mono font-black text-lg tracking-tighter">NB</span>
+                </div>
+                <div>
+                  <div className="text-white font-bold text-xl leading-tight">
+                    NordByg <span style={{ color: "#d97706" }}>Expo</span>
+                  </div>
+                  <div className="text-xs uppercase tracking-widest" style={{ color: "#94a3b8" }}>Denmark's Construction Trade Show</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-black text-lg leading-tight" style={{ color: "#d97706" }}>15–17 JUNE 2026</div>
+                <div className="text-xs" style={{ color: "#94a3b8" }}>Bella Center Copenhagen</div>
+                <div className="text-xs" style={{ color: "#94a3b8" }}>nordexpo.dk</div>
+              </div>
+            </div>
+
+            {/* Title row */}
+            <div className="flex items-start justify-between px-8 py-4 border-b border-slate-200">
+              <h1 className="text-xl font-black text-slate-900 leading-tight">
+                Confirmation of Registration to<br />
+                <span style={{ color: "#d97706" }}>NordByg Expo 2026</span>
+              </h1>
+              <div className="border-2 rounded-lg px-4 py-2 text-right shrink-0 ml-4" style={{ background: "#fef3c7", borderColor: "#d97706" }}>
+                <div className="text-xs uppercase tracking-wider font-bold" style={{ color: "#92400e" }}>Registration No.</div>
+                <div className="text-lg font-black" style={{ color: "#92400e" }}>{r.regNumber}</div>
+              </div>
+            </div>
+
+            {/* Notice */}
+            <div className="border-l-4 px-8 py-2.5 text-xs text-slate-500" style={{ background: "#f8fafc", borderLeftColor: "#d97706" }}>
+              This confirmation is personal and non-transferable. Present this document with a valid passport or ID card at the accreditation desk at Bella Center Copenhagen.
+            </div>
+
+            {/* Two-column: data | localizer */}
+            <div className="grid grid-cols-2 border-b border-slate-200">
+              {/* Registration data */}
+              <div className="border-r border-slate-200">
+                <div className="px-8 py-2.5 border-b border-slate-200 flex items-center gap-2" style={{ background: "#f1f5f9" }}>
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-700">✦ Registration Data</span>
+                </div>
+                <div className="px-8 py-4 space-y-3">
+                  {([
+                    ["Complete Name", r.name.toUpperCase()],
+                    ["Designation", `${r.designation}, ${r.company}`],
+                    ["Passport", r.passport],
+                    ["Passport Expiry", r.passportExpiry],
+                    ["Country of Residence", r.country],
+                    ["Date of Birth", r.dob],
+                    ["Pass Category", r.passType],
+                    ["Registration Type", r.regType],
+                  ] as [string, string][]).map(([label, value]) => (
+                    <div key={label}>
+                      <div className="text-xs font-black uppercase text-slate-800 tracking-wide">{label}:</div>
+                      <div className="text-sm text-slate-700 leading-snug">{value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Localizer */}
+              <div>
+                <div className="px-8 py-2.5 border-b border-slate-200" style={{ background: "#f1f5f9" }}>
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-700">▐▌ Localizer</span>
+                </div>
+                <div className="px-8 py-6 flex flex-col items-center gap-4">
+                  <div className="text-center">
+                    <Barcode code={r.regNumber + r.name} />
+                    <div className="font-mono text-xs font-bold text-slate-700 mt-1 tracking-widest">
+                      {r.regNumber.replace(/-/g, "")}
+                    </div>
+                  </div>
+                  <QRGrid code={r.regNumber + r.name + r.passport} />
+                  <div className="text-xs font-black uppercase tracking-widest px-5 py-2 rounded-full" style={{ background: "#0f172a", color: "#d97706" }}>
+                    {r.passType}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Event info */}
+            <div className="px-8 py-5">
+              <div className="py-2 border-b border-slate-200 mb-4" style={{ background: "transparent" }}>
+                <span className="text-xs font-black uppercase tracking-wider text-slate-700">📋 Event Information</span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-10 gap-y-3">
+                {([
+                  ["Date", "June 15 to 17, 2026"],
+                  ["Schedule", "09:00 — 18:00 (Thu until 17:00)"],
+                  ["Venue", "Bella Center Copenhagen"],
+                  ["Address", "Center Boulevard 5, 2300 København S, Denmark"],
+                  ["Registration Type", r.regType],
+                  ["Contact", "info@nordexpo.dk"],
+                ] as [string, string][]).map(([label, value]) => (
+                  <div key={label}>
+                    <div className="text-xs font-black uppercase text-slate-800 tracking-wide">{label}:</div>
+                    <div className="text-sm text-slate-600 leading-snug">{value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between px-8 py-3" style={{ background: "#0f172a" }}>
+              <div className="text-xs leading-relaxed" style={{ color: "#94a3b8" }}>
+                NordByg Expo Sekretariat · Bella Center, Center Boulevard 5, 2300 København S<br />
+                This document is issued for official registration and travel assistance purposes.
+              </div>
+              <div className="text-right shrink-0 ml-4">
+                <div className="text-xs font-black uppercase tracking-wider" style={{ color: "#d97706" }}>APPROVED ✓</div>
+                <div className="text-xs" style={{ color: "#94a3b8" }}>{r.regDate} · Ref: {r.ref}</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+// ─── Verify badge lookup form ─────────────────────────────────────────────────
+
+function VerifyBadge({ onBack }: { onBack: () => void }) {
+  const [name, setName] = useState("");
+  const [regNumber, setRegNumber] = useState("");
+  const [error, setError] = useState("");
+  const [found, setFound] = useState<Registrant | null>(null);
+
+  if (found) {
+    return <RegistrationCard r={found} onBack={() => { setFound(null); setError(""); }} />;
+  }
+
+  const handleLookup = (e: React.FormEvent) => {
+    e.preventDefault();
+    const match = registrantDB.find(
+      (r) =>
+        r.regNumber.toLowerCase() === regNumber.trim().toLowerCase() &&
+        r.name.toLowerCase() === name.trim().toLowerCase()
+    );
+    if (match) {
+      setFound(match);
+    } else {
+      setError("No registration found. Please check your name and registration number.");
+    }
+  };
+
+  return (
+    <Layout>
+      <div className="pt-28 pb-20 min-h-screen">
+        <div className="container mx-auto px-4 md:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-lg mx-auto"
+          >
+            <Button variant="outline" className="mb-8" onClick={onBack}>
+              <ArrowLeft className="mr-2 w-4 h-4" /> Back
+            </Button>
+
+            <div className="mb-8">
+              <p className="text-sm font-medium uppercase tracking-widest text-primary mb-3">
+                Already Registered
+              </p>
+              <h1 className="text-4xl font-bold tracking-tight mb-3">Download Your Badge</h1>
+              <p className="text-muted-foreground leading-relaxed">
+                Enter the full name and registration number you received. Your confirmation badge will appear instantly.
+              </p>
+            </div>
+
+            <Card className="p-8 bg-card">
+              <form onSubmit={handleLookup} className="space-y-5">
+                <div>
+                  <Label className="mb-2 block text-sm font-medium">Full Name *</Label>
+                  <Input
+                    value={name}
+                    onChange={(e) => { setName(e.target.value); setError(""); }}
+                    placeholder="e.g. Khurram Shahzad"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2 block text-sm font-medium">Registration Number *</Label>
+                  <Input
+                    value={regNumber}
+                    onChange={(e) => { setRegNumber(e.target.value); setError(""); }}
+                    placeholder="e.g. NB-2026-847"
+                    required
+                  />
+                </div>
+                {error && (
+                  <p className="text-sm text-destructive bg-destructive/10 rounded-lg px-4 py-3">{error}</p>
+                )}
+                <Button type="submit" size="lg" className="w-full">
+                  Find My Registration <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </form>
+            </Card>
+
+            <p className="text-center text-sm text-muted-foreground mt-6">
+              Don't have a registration number? Email{" "}
+              <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">info@nordexpo.dk</a>
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
 // ─── Type selection screen ────────────────────────────────────────────────────
 
 export default function Register() {
-  const [type, setType] = useState<"visitor" | "exhibitor" | null>(null);
+  const [type, setType] = useState<"visitor" | "exhibitor" | "verify" | null>(null);
 
   if (type === "visitor") return <VisitorForm onBack={() => setType(null)} />;
   if (type === "exhibitor") return <ExhibitorForm onBack={() => setType(null)} />;
+  if (type === "verify") return <VerifyBadge onBack={() => setType(null)} />;
 
   return (
     <Layout>
@@ -1012,7 +1329,7 @@ export default function Register() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl mx-auto text-center mb-14"
+            className="max-w-5xl mx-auto text-center mb-14"
           >
             <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
               NordByg Expo 2026
@@ -1025,7 +1342,7 @@ export default function Register() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {/* Visitor card */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -1099,6 +1416,45 @@ export default function Register() {
                   </div>
                   <div className="flex items-center gap-2 text-primary font-medium">
                     Register as exhibitor <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Card>
+              </button>
+            </motion.div>
+
+            {/* Already Registered card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <button
+                onClick={() => setType("verify")}
+                className="w-full text-left group"
+              >
+                <Card className="p-8 h-full border-border hover:border-primary/50 transition-all duration-300 group-hover:bg-primary/5">
+                  <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+                    <BadgeCheck className="w-7 h-7 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold mb-3">Already Registered</h2>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">
+                    Already submitted your registration? Download and print your official confirmation badge using your name and registration number.
+                  </p>
+                  <div className="space-y-2 mb-8 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      <span>Instant badge download</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      <span>Barcode &amp; QR code included</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary shrink-0" />
+                      <span>Valid for visa &amp; travel documents</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-primary font-medium">
+                    Download my badge <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Card>
               </button>
