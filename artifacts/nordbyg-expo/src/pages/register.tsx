@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿import { useState, useRef } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -1573,21 +1573,30 @@ function RegistrationCard({
   r: Registrant;
   onBack: () => void;
 }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const handlePrint = () => {
+    iframeRef.current?.contentWindow?.print();
+  };
+
   return (
     <Layout>
-      <style>{`@media print { .no-print { display: none !important; } }`}</style>
       <div className="pt-24 pb-10 min-h-screen bg-background">
         <div className="container mx-auto px-4 md:px-6">
           {/* Action bar */}
-          <div className="no-print flex items-center justify-between mb-5 max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-5 max-w-5xl mx-auto">
             <Button variant="outline" onClick={onBack}>
               <ArrowLeft className="mr-2 w-4 h-4" /> Back
             </Button>
+            <Button onClick={handlePrint}>
+              Print / Save as PDF
+            </Button>
           </div>
 
-          {/* Iframe — loads registration-confirmation.html directly so any edits there instantly reflect here */}
+          {/* Iframe — prints only its own content via contentWindow.print() */}
           <div className="rounded-xl overflow-hidden shadow-2xl max-w-5xl mx-auto" style={{ height: "85vh" }}>
             <iframe
+              ref={iframeRef}
               src="/registration-confirmation.html"
               title="Registration Confirmation"
               className="w-full h-full border-0"
