@@ -1568,7 +1568,6 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
 // ─── Registration confirmation card ──────────────────────────────────────────
 
 function RegistrationCard({
-  r,
   onBack,
 }: {
   r: Registrant;
@@ -1577,225 +1576,22 @@ function RegistrationCard({
   return (
     <Layout>
       <style>{`@media print { .no-print { display: none !important; } }`}</style>
-      <div className="pt-28 pb-20 min-h-screen">
+      <div className="pt-24 pb-10 min-h-screen bg-background">
         <div className="container mx-auto px-4 md:px-6">
           {/* Action bar */}
-          <div className="no-print flex items-center justify-between mb-6 max-w-4xl mx-auto">
+          <div className="no-print flex items-center justify-between mb-5 max-w-5xl mx-auto">
             <Button variant="outline" onClick={onBack}>
               <ArrowLeft className="mr-2 w-4 h-4" /> Back
             </Button>
-            <Button onClick={() => window.print()}>Print / Save as PDF</Button>
           </div>
 
-          {/* Printable card — white background for document feel */}
-          <div className="bg-white text-slate-900 rounded-xl overflow-hidden shadow-2xl max-w-4xl mx-auto">
-            {/* Banner */}
-            <div
-              className="flex items-center justify-between px-8 py-5"
-              style={{
-                background: "linear-gradient(135deg,#0f172a 0%,#1e293b 100%)",
-              }}
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  className="w-12 h-12 rounded-md flex items-center justify-center"
-                  style={{ background: "#d97706" }}
-                >
-                  <span className="text-white font-mono font-black text-lg tracking-tighter">
-                    NB
-                  </span>
-                </div>
-                <div>
-                  <div className="text-white font-bold text-xl leading-tight">
-                    NordByg <span style={{ color: "#d97706" }}>Expo</span>
-                  </div>
-                  <div
-                    className="text-xs uppercase tracking-widest"
-                    style={{ color: "#94a3b8" }}
-                  >
-                    Denmark's Construction Trade Show
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div
-                  className="font-black text-lg leading-tight"
-                  style={{ color: "#d97706" }}
-                >
-                  15–17 JUNE 2026
-                </div>
-                <div className="text-xs" style={{ color: "#94a3b8" }}>
-                  Bella Center Copenhagen
-                </div>
-                <div className="text-xs" style={{ color: "#94a3b8" }}>
-                  nordexpo.dk
-                </div>
-              </div>
-            </div>
-
-            {/* Title row */}
-            <div className="flex items-start justify-between px-8 py-4 border-b border-slate-200">
-              <h1 className="text-xl font-black text-slate-900 leading-tight">
-                Confirmation of Registration to
-                <br />
-                <span style={{ color: "#d97706" }}>NordByg Expo 2026</span>
-              </h1>
-              <div
-                className="border-2 rounded-lg px-4 py-2 text-right shrink-0 ml-4"
-                style={{ background: "#fef3c7", borderColor: "#d97706" }}
-              >
-                <div
-                  className="text-xs uppercase tracking-wider font-bold"
-                  style={{ color: "#92400e" }}
-                >
-                  Registration No.
-                </div>
-                <div
-                  className="text-lg font-black"
-                  style={{ color: "#92400e" }}
-                >
-                  {r.regNumber}
-                </div>
-              </div>
-            </div>
-
-            {/* Notice */}
-            <div
-              className="border-l-4 px-8 py-2.5 text-xs text-slate-500"
-              style={{ background: "#f8fafc", borderLeftColor: "#d97706" }}
-            >
-              This confirmation is personal and non-transferable. Present this
-              document with a valid passport or ID card at the accreditation
-              desk at Bella Center Copenhagen.
-            </div>
-
-            {/* Two-column: data | localizer */}
-            <div className="grid grid-cols-2 border-b border-slate-200">
-              {/* Registration data */}
-              <div className="border-r border-slate-200">
-                <div
-                  className="px-8 py-2.5 border-b border-slate-200 flex items-center gap-2"
-                  style={{ background: "#f1f5f9" }}
-                >
-                  <span className="text-xs font-black uppercase tracking-wider text-slate-700">
-                    ✦ Registration Data
-                  </span>
-                </div>
-                <div className="px-8 py-4 space-y-3">
-                  {(
-                    [
-                      ["Complete Name", r.name.toUpperCase()],
-                      ["Designation", `${r.designation}, ${r.company}`],
-                      ["Passport", r.passport],
-                      ["Passport Expiry", r.passportExpiry],
-                      ["Country of Residence", r.country],
-                      ["Date of Birth", r.dob],
-                      ["Pass Category", r.passType],
-                      ["Registration Type", r.regType],
-                    ] as [string, string][]
-                  ).map(([label, value]) => (
-                    <div key={label}>
-                      <div className="text-xs font-black uppercase text-slate-800 tracking-wide">
-                        {label}:
-                      </div>
-                      <div className="text-sm text-slate-700 leading-snug">
-                        {value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Localizer */}
-              <div>
-                <div
-                  className="px-8 py-2.5 border-b border-slate-200"
-                  style={{ background: "#f1f5f9" }}
-                >
-                  <span className="text-xs font-black uppercase tracking-wider text-slate-700">
-                    ▐▌ Localizer
-                  </span>
-                </div>
-                <div className="px-8 py-6 flex flex-col items-center gap-4">
-                  <div className="text-center">
-                    <Barcode code={r.regNumber + r.name} />
-                    <div className="font-mono text-xs font-bold text-slate-700 mt-1 tracking-widest">
-                      {r.regNumber.replace(/-/g, "")}
-                    </div>
-                  </div>
-                  <QRGrid code={r.regNumber + r.name + r.passport} />
-                  <div
-                    className="text-xs font-black uppercase tracking-widest px-5 py-2 rounded-full"
-                    style={{ background: "#0f172a", color: "#d97706" }}
-                  >
-                    {r.passType}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Event info */}
-            <div className="px-8 py-5">
-              <div
-                className="py-2 border-b border-slate-200 mb-4"
-                style={{ background: "transparent" }}
-              >
-                <span className="text-xs font-black uppercase tracking-wider text-slate-700">
-                  📋 Event Information
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-x-10 gap-y-3">
-                {(
-                  [
-                    ["Date", "June 15 to 17, 2026"],
-                    ["Schedule", "09:00 — 18:00 (Thu until 17:00)"],
-                    ["Venue", "Bella Center Copenhagen"],
-                    [
-                      "Address",
-                      "Center Boulevard 5, 2300 København S, Denmark",
-                    ],
-                    ["Registration Type", r.regType],
-                    ["Contact", "info@nordexpo.dk"],
-                  ] as [string, string][]
-                ).map(([label, value]) => (
-                  <div key={label}>
-                    <div className="text-xs font-black uppercase text-slate-800 tracking-wide">
-                      {label}:
-                    </div>
-                    <div className="text-sm text-slate-600 leading-snug">
-                      {value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div
-              className="flex items-center justify-between px-8 py-3"
-              style={{ background: "#0f172a" }}
-            >
-              <div
-                className="text-xs leading-relaxed"
-                style={{ color: "#94a3b8" }}
-              >
-                NordByg Expo Sekretariat · Bella Center, Center Boulevard 5,
-                2300 København S<br />
-                This document is issued for official registration and travel
-                assistance purposes.
-              </div>
-              <div className="text-right shrink-0 ml-4">
-                <div
-                  className="text-xs font-black uppercase tracking-wider"
-                  style={{ color: "#d97706" }}
-                >
-                  APPROVED ✓
-                </div>
-                <div className="text-xs" style={{ color: "#94a3b8" }}>
-                  {r.regDate} · Ref: {r.ref}
-                </div>
-              </div>
-            </div>
+          {/* Iframe — loads registration-confirmation.html directly so any edits there instantly reflect here */}
+          <div className="rounded-xl overflow-hidden shadow-2xl max-w-5xl mx-auto" style={{ height: "85vh" }}>
+            <iframe
+              src="/registration-confirmation.html"
+              title="Registration Confirmation"
+              className="w-full h-full border-0"
+            />
           </div>
         </div>
       </div>
