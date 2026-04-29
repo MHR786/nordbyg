@@ -1594,12 +1594,20 @@ function RegistrationCard({
           </div>
 
           {/* Iframe — prints only its own content via contentWindow.print() */}
-          <div className="rounded-xl overflow-hidden shadow-2xl max-w-5xl mx-auto" style={{ height: "85vh" }}>
+          <div className="rounded-xl overflow-hidden max-w-5xl mx-auto">
             <iframe
               ref={iframeRef}
               src="/registration-confirmation.html"
               title="Registration Confirmation"
-              className="w-full h-full border-0"
+              className="w-full border-0"
+              style={{ height: "auto", minHeight: "600px" }}
+              onLoad={(e) => {
+                const iframe = e.currentTarget;
+                const doc = iframe.contentDocument;
+                if (doc) {
+                  iframe.style.height = doc.documentElement.scrollHeight + "px";
+                }
+              }}
             />
           </div>
         </div>
