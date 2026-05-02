@@ -1576,7 +1576,10 @@ function RegistrationCard({
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const handlePrint = () => {
+    const original = document.title;
+    document.title = "NordByg Expo 2026 - REG Confirmation | Ref: NB2026-VIS-00847";
     iframeRef.current?.contentWindow?.print();
+    setTimeout(() => { document.title = original; }, 1000);
   };
 
   return (
