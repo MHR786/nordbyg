@@ -1869,26 +1869,26 @@ export default function Register() {
                     Already Registered
                   </h2>
                   <p className="text-muted-foreground mb-6 leading-relaxed">
-                    Already submitted your registration? Download and print your
-                    official confirmation badge using your name and registration
-                    number.
+                    Already submitted your registration? View and print your
+                    official confirmation letter. Your badge will be collected
+                    at the accreditation desk upon arrival.
                   </p>
                   <div className="space-y-2 mb-8 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>Instant badge download</span>
+                      <span>View your confirmation letter</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>Barcode &amp; QR code included</span>
+                      <span>Print &amp; bring it to the event</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>Valid for visa &amp; travel documents</span>
+                      <span>Badge collected at venue on arrival</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-primary font-medium">
-                    Download my badge{" "}
+                    View my confirmation{" "}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Card>
