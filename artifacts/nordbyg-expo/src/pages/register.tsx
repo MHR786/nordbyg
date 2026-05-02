@@ -1774,12 +1774,13 @@ export default function Register() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
+              className="h-full"
             >
               <button
                 onClick={() => setType("visitor")}
-                className="w-full text-left group"
+                className="w-full h-full text-left group"
               >
-                <Card className="p-8 h-full border-border hover:border-primary/50 transition-all duration-300 group-hover:bg-primary/5">
+                <Card className="p-8 h-full flex flex-col border-border hover:border-primary/50 transition-all duration-300 group-hover:bg-primary/5">
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                     <Users className="w-7 h-7 text-primary" />
                   </div>
@@ -1788,7 +1789,7 @@ export default function Register() {
                     Attend NordByg 2026 as a trade visitor. Browse exhibitors,
                     attend conference talks and explore the show floor.
                   </p>
-                  <div className="space-y-2 mb-8 text-sm text-muted-foreground">
+                  <div className="space-y-2 mb-8 text-sm text-muted-foreground flex-1">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
                       <span>Access to all 4 exhibition halls</span>
@@ -1815,12 +1816,13 @@ export default function Register() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
+              className="h-full"
             >
               <button
                 onClick={() => setType("exhibitor")}
-                className="w-full text-left group"
+                className="w-full h-full text-left group"
               >
-                <Card className="p-8 h-full border-border hover:border-primary/50 transition-all duration-300 group-hover:bg-primary/5">
+                <Card className="p-8 h-full flex flex-col border-border hover:border-primary/50 transition-all duration-300 group-hover:bg-primary/5">
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                     <UserCheck className="w-7 h-7 text-primary" />
                   </div>
@@ -1829,7 +1831,7 @@ export default function Register() {
                     Showcase your company, products and services to 12,000+
                     trade visitors from across the Nordic construction sector.
                   </p>
-                  <div className="space-y-2 mb-8 text-sm text-muted-foreground">
+                  <div className="space-y-2 mb-8 text-sm text-muted-foreground flex-1">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
                       <span>Shell-scheme or space-only stands</span>
@@ -1856,12 +1858,13 @@ export default function Register() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
+              className="h-full"
             >
               <button
                 onClick={() => setType("verify")}
-                className="w-full text-left group"
+                className="w-full h-full text-left group"
               >
-                <Card className="p-8 h-full border-border hover:border-primary/50 transition-all duration-300 group-hover:bg-primary/5">
+                <Card className="p-8 h-full flex flex-col border-border hover:border-primary/50 transition-all duration-300 group-hover:bg-primary/5">
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                     <BadgeCheck className="w-7 h-7 text-primary" />
                   </div>
@@ -1870,9 +1873,10 @@ export default function Register() {
                   </h2>
                   <p className="text-muted-foreground mb-6 leading-relaxed">
                     Already submitted your registration? View and print your
-                    official confirmation letter.
+                    official confirmation letter. Your badge will be collected
+                    at the accreditation desk upon arrival.
                   </p>
-                  <div className="space-y-2 mb-8 text-sm text-muted-foreground">
+                  <div className="space-y-2 mb-8 text-sm text-muted-foreground flex-1">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
                       <span>View your confirmation letter</span>
