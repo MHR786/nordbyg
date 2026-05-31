@@ -1,10 +1,9 @@
-import { useState, useRef, useMemo } from "react";
+﻿import { useState, useRef } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useTranslation } from "react-i18next";
 import {
   Check,
   ArrowRight,
@@ -32,8 +31,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 
-type TFn = (key: string) => string;
-
 // ─── Registrant lookup database ──────────────────────────────────────────────
 
 const registrantDB = [
@@ -55,152 +52,222 @@ const registrantDB = [
 
 type Registrant = (typeof registrantDB)[0];
 
+// ─── Barcode SVG ─────────────────────────────────────────────────────────────
+
+function Barcode({ code }: { code: string }) {
+  const bars: { x: number; w: number; h: number }[] = [];
+  let x = 0;
+  for (let i = 0; i < 40; i++) {
+    const ch = code.charCodeAt(i % code.length);
+    const w = ((ch + i * 7) % 3) + 1;
+    const h = 38 + ((ch * 3 + i * 5) % 24);
+    bars.push({ x, w, h });
+    x += w + 1.5;
+  }
+  return (
+    <svg
+      width="190"
+      height="62"
+      viewBox={`0 0 ${x} 62`}
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ display: "block" }}
+    >
+      {bars.map((b, i) => (
+        <rect
+          key={i}
+          x={b.x}
+          y={62 - b.h}
+          width={b.w}
+          height={b.h}
+          fill="#1e293b"
+        />
+      ))}
+    </svg>
+  );
+}
+
+// ─── QR code SVG ─────────────────────────────────────────────────────────────
+
+function QRGrid({ code }: { code: string }) {
+  const size = 21;
+  const cs = 5;
+  const cells: boolean[] = [];
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      let black = false;
+      if (r < 7 && c < 7) {
+        black =
+          r === 0 ||
+          r === 6 ||
+          c === 0 ||
+          c === 6 ||
+          (r >= 2 && r <= 4 && c >= 2 && c <= 4);
+      } else if (r < 7 && c >= 14) {
+        const lc = c - 14;
+        black =
+          r === 0 ||
+          r === 6 ||
+          lc === 0 ||
+          lc === 6 ||
+          (r >= 2 && r <= 4 && lc >= 2 && lc <= 4);
+      } else if (r >= 14 && c < 7) {
+        const lr = r - 14;
+        black =
+          lr === 0 ||
+          lr === 6 ||
+          c === 0 ||
+          c === 6 ||
+          (lr >= 2 && lr <= 4 && c >= 2 && c <= 4);
+      } else {
+        const idx = r * size + c;
+        const ch = code.charCodeAt(idx % code.length);
+        black = (ch + r * 3 + c * 7 + idx) % 3 !== 0;
+      }
+      cells.push(black);
+    }
+  }
+  const total = size * cs + 8;
+  return (
+    <svg width={total} height={total} xmlns="http://www.w3.org/2000/svg">
+      <rect width={total} height={total} fill="white" />
+      {cells.map((black, i) =>
+        black ? (
+          <rect
+            key={i}
+            x={(i % size) * cs + 4}
+            y={Math.floor(i / size) * cs + 4}
+            width={cs}
+            height={cs}
+            fill="#0f172a"
+          />
+        ) : null,
+      )}
+    </svg>
+  );
+}
+
 // ─── Shared data ──────────────────────────────────────────────────────────────
 
-const useInterestAreas = (t: TFn) =>
-  useMemo(
-    () => [
-      t("register.interest1"),
-      t("register.interest2"),
-      t("register.interest3"),
-      t("register.interest4"),
-      t("register.interest5"),
-      t("register.interest6"),
-      t("register.interest7"),
-      t("register.interest8"),
-    ],
-    [t],
-  );
+const interestAreas = [
+  "BIM & Digital Construction",
+  "Sustainable Building Materials",
+  "Heavy Machinery & Equipment",
+  "Tools & Craftsmen Equipment",
+  "Prefab & Modular Construction",
+  "Smart Buildings & Facade Tech",
+  "Safety, Compliance & Standards",
+  "Architecture & Urban Design",
+];
 
-const useHowYouHeardOptions = (t: TFn) =>
-  useMemo(
-    () => [
-      t("register.howSocial"),
-      t("register.howSearch"),
-      t("register.howColleague"),
-      t("register.howIndustry"),
-      t("register.howPrevious"),
-      t("register.howNewsletter"),
-      t("register.howOther"),
-    ],
-    [t],
-  );
+const howYouHeardOptions = [
+  "Social Media",
+  "Search Engine (Google, etc.)",
+  "Colleague / Word of mouth",
+  "Industry publication / Magazine",
+  "Previous NordByg Expo",
+  "Email newsletter",
+  "Other",
+];
 
 // ─── Visitor schema ───────────────────────────────────────────────────────────
 
-const makeVisitorSchema = (t: TFn) =>
-  z
-    .object({
-      name: z.string().min(2, t("register.nameRequired")),
-      email: z.string().email(t("register.emailRequired")),
-      attendeeType: z.string().min(1, t("register.typeRequired")),
-      companyName: z.string(),
-      designation: z.string(),
-      gender: z.string().min(1, t("register.genderRequired")),
-      dob: z.string().min(1, t("register.dobRequired")),
-      docType: z.string().min(1, t("register.docTypeRequired")),
-      docNumber: z.string().min(3, t("register.docNumberRequired")),
-      country: z.string().min(2, t("register.countryRequired")),
-      companyUrl: z.string().url(t("register.urlRequired")).or(z.literal("")),
-      address: z.string().min(5, t("register.addressRequired")),
-      contactNumber: z.string().min(6, t("register.contactRequired")),
-      aboutYourself: z.string().min(20, t("register.aboutRequired")),
-      interestedIn: z.array(z.string()).min(1, t("register.interestRequired")),
-      howYouHeard: z.string().min(1, t("register.optionRequired")),
-      passSelection: z.string().min(1, t("register.passRequired")),
-      consent: z.literal(true, { message: t("register.consentRequired") }),
-    })
-    .superRefine((data, ctx) => {
-      if (data.attendeeType === "Company" && data.companyName.trim().length < 2) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t("register.companyRequired"),
-          path: ["companyName"],
-        });
-      }
-      if (data.attendeeType !== "Student" && data.designation.trim().length < 2) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: t("register.designationRequired"),
-          path: ["designation"],
-        });
-      }
-    });
+const visitorSchema = z
+  .object({
+    name: z.string().min(2, "Full name is required"),
+    email: z.string().email("Valid email required"),
+    attendeeType: z.string().min(1, "Please select a type"),
+    companyName: z.string(),
+    designation: z.string(),
+    gender: z.string().min(1, "Please select your gender"),
+    dob: z.string().min(1, "Date of birth is required"),
+    docType: z.string().min(1, "Please select a document type"),
+    docNumber: z.string().min(3, "Document number is required"),
+    country: z.string().min(2, "Country is required"),
+    companyUrl: z.string().url("Valid URL required").or(z.literal("")),
+    address: z.string().min(5, "Address is required"),
+    contactNumber: z.string().min(6, "Contact number is required"),
+    aboutYourself: z.string().min(20, "Please write at least 20 characters"),
+    interestedIn: z.array(z.string()).min(1, "Select at least one area"),
+    howYouHeard: z.string().min(1, "Please select an option"),
+    passSelection: z.string().min(1, "Please select a pass"),
+    consent: z.literal(true, { message: "You must accept the terms" }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.attendeeType === "Company" && data.companyName.trim().length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Company name is required",
+        path: ["companyName"],
+      });
+    }
+    if (data.attendeeType !== "Student" && data.designation.trim().length < 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Designation is required",
+        path: ["designation"],
+      });
+    }
+  });
 
-type VisitorData = z.infer<ReturnType<typeof makeVisitorSchema>>;
+type VisitorData = z.infer<typeof visitorSchema>;
 
-const useVisitorPasses = (t: TFn) =>
-  useMemo(
-    () => [
-      { id: "A", label: t("register.passA"), price: t("register.passAPrice") },
-      { id: "B", label: t("register.passB"), price: t("register.passBPrice") },
-      { id: "C", label: t("register.passC"), price: t("register.passCPrice") },
-      { id: "D", label: t("register.passD"), price: t("register.passDPrice") },
-    ],
-    [t],
-  );
+const visitorPasses = [
+  { id: "A", label: "Pass A — 1-Day Trade Pass", price: "245 DKK" },
+  { id: "B", label: "Pass B — 3-Day Trade Pass", price: "545 DKK" },
+  {
+    id: "C",
+    label: "Pass C — Student Pass",
+    price: "95 DKK (valid student ID required)",
+  },
+  {
+    id: "D",
+    label: "Pass D — Member Pass",
+    price: "Free (DI Byg / AOB members)",
+  },
+];
 
 // ─── Exhibitor schema ─────────────────────────────────────────────────────────
 
-const makeExhibitorSchema = (t: TFn) =>
-  z.object({
-    name: z.string().min(2, t("register.nameRequired")),
-    email: z.string().email(t("register.emailRequired")),
-    companyName: z.string().min(2, t("register.companyRequired")),
-    designation: z.string().min(2, t("register.designationRequired")),
-    docType: z.string().min(1, t("register.docTypeRequired")),
-    docNumber: z.string().min(3, t("register.docNumberRequired")),
-    role: z.string().min(1, t("register.roleRequired")),
-    buyerType: z.string().min(1, t("register.typeRequired")),
-    companyUrl: z.string().url(t("register.urlRequired")).or(z.literal("")),
-    country: z.string().min(2, t("register.countryRequired")),
-    address: z.string().min(5, t("register.addressRequired")),
-    phone: z.string().min(6, t("register.phoneRequired")),
-    standOption: z.string().min(1, t("register.standRequired")),
-    interestedIn: z.array(z.string()).min(1, t("register.interestRequired")),
-    howYouHeard: z.string().min(1, t("register.optionRequired")),
-    consent: z.literal(true, { message: t("register.consentRequired") }),
-  });
+const exhibitorSchema = z.object({
+  name: z.string().min(2, "Full name is required"),
+  email: z.string().email("Valid email required"),
+  companyName: z.string().min(2, "Company name is required"),
+  designation: z.string().min(2, "Designation is required"),
+  docType: z.string().min(1, "Please select a document type"),
+  docNumber: z.string().min(3, "Document number is required"),
+  role: z.string().min(1, "Please select a role"),
+  buyerType: z.string().min(1, "Please select a type"),
+  companyUrl: z.string().url("Valid URL required").or(z.literal("")),
+  country: z.string().min(2, "Country is required"),
+  address: z.string().min(5, "Address is required"),
+  phone: z.string().min(6, "Phone number is required"),
+  standOption: z.string().min(1, "Please select a stand option"),
+  interestedIn: z.array(z.string()).min(1, "Select at least one area"),
+  howYouHeard: z.string().min(1, "Please select an option"),
+  consent: z.literal(true, { message: "You must accept the terms" }),
+});
 
-type ExhibitorData = z.infer<ReturnType<typeof makeExhibitorSchema>>;
+type ExhibitorData = z.infer<typeof exhibitorSchema>;
 
-const useExhibitorRoles = (t: TFn) =>
-  useMemo(
-    () => [
-      t("register.roleDecision"),
-      t("register.roleAcct"),
-      t("register.rolePM"),
-      t("register.roleSales"),
-      t("register.roleTech"),
-      t("register.roleHR"),
-      t("register.roleTrainer"),
-      t("register.roleOther"),
-    ],
-    [t],
-  );
+const exhibitorRoles = [
+  "Final Decision Maker",
+  "Accountant / Finance",
+  "Project Manager",
+  "Sales / Business Development",
+  "Technical / Engineering",
+  "HR / Administration",
+  "Trainer / Consultant",
+  "Other",
+];
 
-const useBuyerTypes = (t: TFn) =>
-  useMemo(
-    () => [
-      t("register.buyerBuyer"),
-      t("register.buyerPurchaser"),
-      t("register.buyerSpecifier"),
-      t("register.buyerContractor"),
-      t("register.buyerOther"),
-    ],
-    [t],
-  );
+const buyerTypes = ["Buyer", "Purchaser", "Specifier", "Contractor", "Other"];
 
-const useStandOptions = (t: TFn) =>
-  useMemo(
-    () => [
-      { id: "A", label: t("register.standA"), price: t("register.standAPrice") },
-      { id: "B", label: t("register.standB"), price: t("register.standBPrice") },
-      { id: "C", label: t("register.standC"), price: t("register.standCPrice") },
-      { id: "D", label: t("register.standD"), price: t("register.standDPrice") },
-    ],
-    [t],
-  );
+const standOptions = [
+  { id: "A", label: "Stand A — 9 m² Shell-scheme", price: "from 12,400 DKK" },
+  { id: "B", label: "Stand B — 18 m² Shell-scheme", price: "from 23,800 DKK" },
+  { id: "C", label: "Stand C — 36 m² Space-only", price: "from 42,500 DKK" },
+  { id: "D", label: "Stand D — 72 m² Space-only", price: "from 78,000 DKK" },
+];
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
@@ -240,8 +307,6 @@ function InterestCheckboxes({
   onChange: (v: string[]) => void;
   error?: string;
 }) {
-  const { t } = useTranslation();
-  const interestAreas = useInterestAreas(t);
   const toggle = (area: string) => {
     onChange(
       value.includes(area) ? value.filter((a) => a !== area) : [...value, area],
@@ -249,7 +314,7 @@ function InterestCheckboxes({
   };
   return (
     <div>
-      <Label className="mb-3 block">{t("register.interestedIn")}</Label>
+      <Label className="mb-3 block">Interested in *</Label>
       <div className="grid sm:grid-cols-2 gap-2">
         {interestAreas.map((area) => (
           <label
@@ -278,30 +343,29 @@ function Sidebar({
   step: number;
   steps: string[];
 }) {
-  const { t } = useTranslation();
   return (
     <aside className="lg:col-span-4">
       <div className="lg:sticky lg:top-28">
         <p className="text-sm font-medium uppercase tracking-widest text-primary mb-3">
           {type === "visitor"
-            ? t("register.visitorSidebarEyebrow")
-            : t("register.exhibitorSidebarEyebrow")}
+            ? "Visitor Registration"
+            : "Exhibitor Registration"}
         </p>
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-5">
           {type === "visitor"
-            ? t("register.visitorSidebarTitle")
-            : t("register.exhibitorSidebarTitle")}
+            ? "Register as a visitor to NordByg 2026."
+            : "Reserve your stand at NordByg 2026."}
         </h1>
         <p className="text-muted-foreground mb-8">
           {type === "visitor"
-            ? t("register.visitorSidebarDesc")
-            : t("register.exhibitorSidebarDesc")}
+            ? "Complete the form to register your visitor pass. You'll receive your ticket confirmation by email."
+            : "Submit the form to apply for an exhibition stand. Our team reviews every application within 3 business days."}
         </p>
 
         <Card className="p-5 bg-card mb-5 border-border">
           <div className="flex items-center gap-3 mb-3">
             <Calendar className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">{t("home.dates")}</span>
+            <span className="text-sm font-medium">6 — 8 July 2026</span>
           </div>
           <div className="flex items-center gap-3 mb-3">
             <MapPin className="w-4 h-4 text-primary" />
@@ -360,7 +424,6 @@ function Sidebar({
 }
 
 function SuccessScreen({ onReset }: { onReset: () => void }) {
-  const { t } = useTranslation();
   return (
     <Layout>
       <div className="min-h-[80vh] pt-32 pb-20 flex items-center justify-center px-4">
@@ -395,7 +458,7 @@ function SuccessScreen({ onReset }: { onReset: () => void }) {
             transition={{ delay: 0.6 }}
             className="text-4xl md:text-5xl font-bold tracking-tight mb-5"
           >
-            {t("register.regSubmitted")}
+            Registration submitted
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -403,7 +466,8 @@ function SuccessScreen({ onReset }: { onReset: () => void }) {
             transition={{ delay: 0.75 }}
             className="text-lg text-muted-foreground mb-3"
           >
-            {t("register.regSubmittedDesc")}
+            Thank you. Your registration for NordByg Expo 2026 has been
+            received.
           </motion.p>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -411,9 +475,9 @@ function SuccessScreen({ onReset }: { onReset: () => void }) {
             transition={{ delay: 0.85 }}
             className="text-base text-muted-foreground mb-10 max-w-lg mx-auto"
           >
-            {t("register.regSubmittedDesc2a")}
-            <strong className="text-foreground">{t("register.regSubmittedBold")}</strong>
-            {t("register.regSubmittedDesc2b")}
+            Our team will review your application and contact you within{" "}
+            <strong className="text-foreground">3 business days</strong>. Please
+            check your inbox for a confirmation email shortly.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -423,7 +487,7 @@ function SuccessScreen({ onReset }: { onReset: () => void }) {
           >
             <Link href="/">
               <Button size="lg" className="h-12 px-8">
-                {t("register.backToHome")}
+                Return to home
               </Button>
             </Link>
             <Button
@@ -432,7 +496,7 @@ function SuccessScreen({ onReset }: { onReset: () => void }) {
               className="h-12 px-8"
               onClick={onReset}
             >
-              {t("register.submitAnother")}
+              Submit another registration
             </Button>
           </motion.div>
         </motion.div>
@@ -444,14 +508,9 @@ function SuccessScreen({ onReset }: { onReset: () => void }) {
 // ─── Visitor form ─────────────────────────────────────────────────────────────
 
 function VisitorForm({ onBack }: { onBack: () => void }) {
-  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
-
-  const visitorSchema = useMemo(() => makeVisitorSchema(t), [t]);
-  const visitorPasses = useVisitorPasses(t);
-  const howYouHeardOptions = useHowYouHeardOptions(t);
 
   const form = useForm<VisitorData>({
     resolver: zodResolver(visitorSchema),
@@ -567,25 +626,23 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
       });
       const json = await res.json();
       if (!json.success) {
-        setSubmitError(json.message ?? t("register.submitFailed"));
+        setSubmitError(json.message ?? "Submission failed. Please try again.");
         return;
       }
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : t("register.networkError"),
+        err instanceof Error
+          ? err.message
+          : "Network error. Please check your connection and try again.",
       );
     }
   };
 
   if (submitted) return <SuccessScreen onReset={onBack} />;
 
-  const steps = [
-    t("register.stepPersonal"),
-    t("register.stepAdditional"),
-    t("register.stepReview"),
-  ];
+  const steps = ["Personal details", "Additional info", "Review & submit"];
 
   return (
     <Layout>
@@ -607,21 +664,21 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                       <div className="flex items-center gap-3 mb-2">
                         <Users className="w-6 h-6 text-primary" />
                         <h2 className="text-2xl font-semibold">
-                          {t("register.personalDetails")}
+                          Personal details
                         </h2>
                       </div>
                       <div className="grid sm:grid-cols-2 gap-5">
                         <Field
-                          label={t("register.fullName")}
+                          label="Full name *"
                           error={form.formState.errors.name?.message}
                         >
                           <Input
                             {...form.register("name")}
-                            placeholder={t("register.fullNamePlaceholder")}
+                            placeholder="Your full name"
                           />
                         </Field>
                         <Field
-                          label={t("register.email")}
+                          label="Email *"
                           error={form.formState.errors.email?.message}
                         >
                           <Input
@@ -631,7 +688,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           />
                         </Field>
                         <Field
-                          label={t("register.attendeeType")}
+                          label="Attendee type *"
                           error={form.formState.errors.attendeeType?.message}
                         >
                           <Select
@@ -643,16 +700,16 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder={t("register.selectType")} />
+                              <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Company">{t("register.company")}</SelectItem>
-                              <SelectItem value="Student">{t("register.student")}</SelectItem>
+                              <SelectItem value="Company">Company</SelectItem>
+                              <SelectItem value="Student">Student</SelectItem>
                             </SelectContent>
                           </Select>
                         </Field>
                         <Field
-                          label={t("register.gender")}
+                          label="Gender *"
                           error={form.formState.errors.gender?.message}
                         >
                           <Select
@@ -664,19 +721,19 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder={t("register.selectGender")} />
+                              <SelectValue placeholder="Select gender" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Male">{t("register.male")}</SelectItem>
-                              <SelectItem value="Female">{t("register.female")}</SelectItem>
+                              <SelectItem value="Male">Male</SelectItem>
+                              <SelectItem value="Female">Female</SelectItem>
                               <SelectItem value="Prefer not to say">
-                                {t("register.preferNot")}
+                                Prefer not to say
                               </SelectItem>
                             </SelectContent>
                           </Select>
                         </Field>
                         <Field
-                          label={t("register.dob")}
+                          label="Date of birth *"
                           error={form.formState.errors.dob?.message}
                         >
                           <Input
@@ -686,7 +743,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           />
                         </Field>
                         <Field
-                          label={t("register.contactNumber")}
+                          label="Contact number *"
                           error={form.formState.errors.contactNumber?.message}
                         >
                           <Input
@@ -695,7 +752,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           />
                         </Field>
                         <Field
-                          label={t("register.docType")}
+                          label="Document type *"
                           error={form.formState.errors.docType?.message}
                         >
                           <Select
@@ -707,21 +764,21 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder={t("register.selectDoc")} />
+                              <SelectValue placeholder="Select document type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Passport">{t("register.passport")}</SelectItem>
-                              <SelectItem value="ID Card">{t("register.idCard")}</SelectItem>
+                              <SelectItem value="Passport">Passport</SelectItem>
+                              <SelectItem value="ID Card">ID Card</SelectItem>
                             </SelectContent>
                           </Select>
                         </Field>
                         <Field
-                          label={t("register.docNumber")}
+                          label="Document number *"
                           error={form.formState.errors.docNumber?.message}
                         >
                           <Input
                             {...form.register("docNumber")}
-                            placeholder={t("register.docNumberPh")}
+                            placeholder="e.g. AB1234567"
                           />
                         </Field>
                       </div>
@@ -732,10 +789,10 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           variant="outline"
                           onClick={prev}
                         >
-                          <ArrowLeft className="mr-2 w-4 h-4" /> {t("register.backBtn")}
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
                         </Button>
                         <Button type="button" size="lg" onClick={next}>
-                          {t("register.continue")} <ArrowRight className="ml-2 w-4 h-4" />
+                          Continue <ArrowRight className="ml-2 w-4 h-4" />
                         </Button>
                       </div>
                     </motion.div>
@@ -749,40 +806,40 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                       className="space-y-6"
                     >
                       <h2 className="text-2xl font-semibold mb-2">
-                        {t("register.additionalInfo")}
+                        Additional info
                       </h2>
                       <div className="grid sm:grid-cols-2 gap-5">
                         {isCompany && (
                           <Field
-                            label={t("register.companyName")}
+                            label="Company name *"
                             error={form.formState.errors.companyName?.message}
                           >
                             <Input
                               {...form.register("companyName")}
-                              placeholder={t("register.companyNamePh")}
+                              placeholder="e.g. Skanska Danmark A/S"
                             />
                           </Field>
                         )}
                         {!isStudent && (
                           <Field
-                            label={t("register.designation")}
+                            label="Designation *"
                             error={form.formState.errors.designation?.message}
                           >
                             <Input
                               {...form.register("designation")}
-                              placeholder={t("register.designationPh")}
+                              placeholder="e.g. Senior Architect"
                             />
                           </Field>
                         )}
                         <Field
-                          label={t("register.countryLabel")}
+                          label="Country *"
                           error={form.formState.errors.country?.message}
                         >
                           <Input {...form.register("country")} />
                         </Field>
                         {!isStudent && (
                           <Field
-                            label={t("register.companyUrl")}
+                            label="Company URL (optional)"
                             error={form.formState.errors.companyUrl?.message}
                           >
                             <Input
@@ -792,23 +849,23 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           </Field>
                         )}
                         <Field
-                          label={t("register.addressLabel")}
+                          label="Address *"
                           error={form.formState.errors.address?.message}
                         >
                           <Input
                             {...form.register("address")}
-                            placeholder={t("register.addressPh")}
+                            placeholder="Street, City, Postcode"
                           />
                         </Field>
                       </div>
                       <Field
-                        label={t("register.aboutYou")}
+                        label="About yourself *"
                         error={form.formState.errors.aboutYourself?.message}
                       >
                         <Textarea
                           {...form.register("aboutYourself")}
                           rows={5}
-                          placeholder={t("register.aboutYouPh")}
+                          placeholder="Tell us about your role, company and why you are attending NordByg 2026."
                         />
                       </Field>
                       <div className="flex justify-between pt-4">
@@ -818,10 +875,10 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           variant="outline"
                           onClick={prev}
                         >
-                          <ArrowLeft className="mr-2 w-4 h-4" /> {t("register.backBtn")}
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
                         </Button>
                         <Button type="button" size="lg" onClick={next}>
-                          {t("register.continue")} <ArrowRight className="ml-2 w-4 h-4" />
+                          Continue <ArrowRight className="ml-2 w-4 h-4" />
                         </Button>
                       </div>
                     </motion.div>
@@ -835,35 +892,35 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                       className="space-y-6"
                     >
                       <h2 className="text-2xl font-semibold mb-2">
-                        {t("register.reviewSubmit")}
+                        Review &amp; submit
                       </h2>
 
                       {/* Review summary */}
                       <div className="space-y-3 rounded-lg border border-border p-5 bg-background">
-                        <Row label={t("register.rowName")} v={form.watch("name")} />
-                        <Row label={t("register.rowEmail")} v={form.watch("email")} />
-                        <Row label={t("register.rowType")} v={form.watch("attendeeType")} />
+                        <Row label="Name" v={form.watch("name")} />
+                        <Row label="Email" v={form.watch("email")} />
+                        <Row label="Type" v={form.watch("attendeeType")} />
                         {isCompany && (
-                          <Row label={t("register.rowCompany")} v={form.watch("companyName")} />
+                          <Row label="Company" v={form.watch("companyName")} />
                         )}
-                        <Row label={t("register.rowGender")} v={form.watch("gender")} />
-                        <Row label={t("register.rowDob")} v={form.watch("dob")} />
-                        <Row label={t("register.rowDocType")} v={form.watch("docType")} />
+                        <Row label="Gender" v={form.watch("gender")} />
+                        <Row label="Date of birth" v={form.watch("dob")} />
+                        <Row label="Document type" v={form.watch("docType")} />
                         <Row
-                          label={t("register.rowDocNumber")}
+                          label="Document number"
                           v={form.watch("docNumber")}
                         />
                         {!isStudent && (
                           <Row
-                            label={t("register.rowDesignation")}
+                            label="Designation"
                             v={form.watch("designation")}
                           />
                         )}
-                        <Row label={t("register.rowContact")} v={form.watch("contactNumber")} />
-                        <Row label={t("register.rowCountry")} v={form.watch("country")} />
-                        <Row label={t("register.rowAddress")} v={form.watch("address")} />
+                        <Row label="Contact" v={form.watch("contactNumber")} />
+                        <Row label="Country" v={form.watch("country")} />
+                        <Row label="Address" v={form.watch("address")} />
                         {!isStudent && form.watch("companyUrl") && (
-                          <Row label={t("register.rowWebsite")} v={form.watch("companyUrl")} />
+                          <Row label="Website" v={form.watch("companyUrl")} />
                         )}
                       </div>
 
@@ -880,7 +937,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
 
                       {/* How you heard */}
                       <Field
-                        label={t("register.howHeard")}
+                        label="How did you hear about NordByg? *"
                         error={form.formState.errors.howYouHeard?.message}
                       >
                         <Select
@@ -892,7 +949,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           }
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder={t("register.selectOption")} />
+                            <SelectValue placeholder="Select an option" />
                           </SelectTrigger>
                           <SelectContent>
                             {howYouHeardOptions.map((o) => (
@@ -906,7 +963,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
 
                       {/* Pass selection */}
                       <div>
-                        <Label className="mb-3 block">{t("register.passSelection")}</Label>
+                        <Label className="mb-3 block">Pass selection *</Label>
                         <div className="grid sm:grid-cols-2 gap-3">
                           {visitorPasses.map((p) => {
                             const active = form.watch("passSelection") === p.id;
@@ -957,7 +1014,9 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           htmlFor="consent"
                           className="text-sm leading-relaxed font-normal text-muted-foreground"
                         >
-                          {t("register.consentVisitor")}
+                          I confirm that the information provided is accurate
+                          and I accept the NordByg Expo 2026 visitor terms and
+                          privacy policy. *
                         </Label>
                       </div>
                       {form.formState.errors.consent && (
@@ -979,7 +1038,7 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           variant="outline"
                           onClick={prev}
                         >
-                          <ArrowLeft className="mr-2 w-4 h-4" /> {t("register.backBtn")}
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
                         </Button>
                         <Button
                           type="submit"
@@ -987,8 +1046,8 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
                           disabled={form.formState.isSubmitting}
                         >
                           {form.formState.isSubmitting
-                            ? t("register.sending")
-                            : t("register.submitRegistration")}
+                            ? "Sending…"
+                            : "Submit registration"}
                           <Check className="ml-2 w-4 h-4" />
                         </Button>
                       </div>
@@ -1007,16 +1066,9 @@ function VisitorForm({ onBack }: { onBack: () => void }) {
 // ─── Exhibitor form ───────────────────────────────────────────────────────────
 
 function ExhibitorForm({ onBack }: { onBack: () => void }) {
-  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
-
-  const exhibitorSchema = useMemo(() => makeExhibitorSchema(t), [t]);
-  const exhibitorRoles = useExhibitorRoles(t);
-  const buyerTypes = useBuyerTypes(t);
-  const standOptions = useStandOptions(t);
-  const howYouHeardOptions = useHowYouHeardOptions(t);
 
   const form = useForm<ExhibitorData>({
     resolver: zodResolver(exhibitorSchema),
@@ -1105,25 +1157,23 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
       });
       const json = await res.json();
       if (!json.success) {
-        setSubmitError(json.message ?? t("register.submitFailed"));
+        setSubmitError(json.message ?? "Submission failed. Please try again.");
         return;
       }
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : t("register.networkError"),
+        err instanceof Error
+          ? err.message
+          : "Network error. Please check your connection and try again.",
       );
     }
   };
 
   if (submitted) return <SuccessScreen onReset={onBack} />;
 
-  const steps = [
-    t("register.stepContact"),
-    t("register.stepStand"),
-    t("register.stepReview"),
-  ];
+  const steps = ["Contact information", "Stand selection", "Review & submit"];
 
   return (
     <Layout>
@@ -1145,21 +1195,21 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                       <div className="flex items-center gap-3 mb-2">
                         <Building2 className="w-6 h-6 text-primary" />
                         <h2 className="text-2xl font-semibold">
-                          {t("register.contactInformation")}
+                          Contact information
                         </h2>
                       </div>
                       <div className="grid sm:grid-cols-2 gap-5">
                         <Field
-                          label={t("register.fullName")}
+                          label="Full name *"
                           error={form.formState.errors.name?.message}
                         >
                           <Input
                             {...form.register("name")}
-                            placeholder={t("register.fullNamePlaceholder")}
+                            placeholder="Your full name"
                           />
                         </Field>
                         <Field
-                          label={t("register.email")}
+                          label="Email *"
                           error={form.formState.errors.email?.message}
                         >
                           <Input
@@ -1169,7 +1219,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           />
                         </Field>
                         <Field
-                          label={t("register.companyName")}
+                          label="Company name *"
                           error={form.formState.errors.companyName?.message}
                         >
                           <Input
@@ -1178,7 +1228,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           />
                         </Field>
                         <Field
-                          label={t("register.designation")}
+                          label="Designation *"
                           error={form.formState.errors.designation?.message}
                         >
                           <Input
@@ -1187,7 +1237,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           />
                         </Field>
                         <Field
-                          label={t("register.docType")}
+                          label="Document type *"
                           error={form.formState.errors.docType?.message}
                         >
                           <Select
@@ -1199,21 +1249,21 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder={t("register.selectDoc")} />
+                              <SelectValue placeholder="Select document type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Passport">{t("register.passport")}</SelectItem>
-                              <SelectItem value="ID Card">{t("register.idCard")}</SelectItem>
+                              <SelectItem value="Passport">Passport</SelectItem>
+                              <SelectItem value="ID Card">ID Card</SelectItem>
                             </SelectContent>
                           </Select>
                         </Field>
                         <Field
-                          label={t("register.docNumber")}
+                          label="Document number *"
                           error={form.formState.errors.docNumber?.message}
                         >
                           <Input
                             {...form.register("docNumber")}
-                            placeholder={t("register.docNumberPh")}
+                            placeholder="e.g. AB1234567"
                           />
                         </Field>
                       </div>
@@ -1224,10 +1274,10 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           variant="outline"
                           onClick={prev}
                         >
-                          <ArrowLeft className="mr-2 w-4 h-4" /> {t("register.backBtn")}
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
                         </Button>
                         <Button type="button" size="lg" onClick={next}>
-                          {t("register.continue")} <ArrowRight className="ml-2 w-4 h-4" />
+                          Continue <ArrowRight className="ml-2 w-4 h-4" />
                         </Button>
                       </div>
                     </motion.div>
@@ -1241,11 +1291,11 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                       className="space-y-6"
                     >
                       <h2 className="text-2xl font-semibold mb-2">
-                        {t("register.standSelection")}
+                        Stand selection
                       </h2>
                       <div className="grid sm:grid-cols-2 gap-5">
                         <Field
-                          label={t("register.yourRole")}
+                          label="Your role *"
                           error={form.formState.errors.role?.message}
                         >
                           <Select
@@ -1255,7 +1305,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder={t("register.selectRole")} />
+                              <SelectValue placeholder="Select role" />
                             </SelectTrigger>
                             <SelectContent>
                               {exhibitorRoles.map((r) => (
@@ -1267,7 +1317,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           </Select>
                         </Field>
                         <Field
-                          label={t("register.buyerType")}
+                          label="Buyer type *"
                           error={form.formState.errors.buyerType?.message}
                         >
                           <Select
@@ -1279,7 +1329,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder={t("register.selectType")} />
+                              <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                             <SelectContent>
                               {buyerTypes.map((b) => (
@@ -1291,7 +1341,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           </Select>
                         </Field>
                         <Field
-                          label={t("register.companyUrl")}
+                          label="Company URL (optional)"
                           error={form.formState.errors.companyUrl?.message}
                         >
                           <Input
@@ -1300,13 +1350,13 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           />
                         </Field>
                         <Field
-                          label={t("register.countryLabel")}
+                          label="Country *"
                           error={form.formState.errors.country?.message}
                         >
                           <Input {...form.register("country")} />
                         </Field>
                         <Field
-                          label={t("register.phone")}
+                          label="Phone *"
                           error={form.formState.errors.phone?.message}
                         >
                           <Input
@@ -1315,18 +1365,18 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           />
                         </Field>
                         <Field
-                          label={t("register.addressLabel")}
+                          label="Address *"
                           error={form.formState.errors.address?.message}
                         >
                           <Input
                             {...form.register("address")}
-                            placeholder={t("register.addressPh")}
+                            placeholder="Street, City, Postcode"
                           />
                         </Field>
                       </div>
 
                       <div>
-                        <Label className="mb-3 block">{t("register.standOption")}</Label>
+                        <Label className="mb-3 block">Stand option *</Label>
                         <div className="grid sm:grid-cols-2 gap-3">
                           {standOptions.map((s) => {
                             const active = form.watch("standOption") === s.id;
@@ -1369,10 +1419,10 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           variant="outline"
                           onClick={prev}
                         >
-                          <ArrowLeft className="mr-2 w-4 h-4" /> {t("register.backBtn")}
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
                         </Button>
                         <Button type="button" size="lg" onClick={next}>
-                          {t("register.continue")} <ArrowRight className="ml-2 w-4 h-4" />
+                          Continue <ArrowRight className="ml-2 w-4 h-4" />
                         </Button>
                       </div>
                     </motion.div>
@@ -1386,32 +1436,32 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                       className="space-y-6"
                     >
                       <h2 className="text-2xl font-semibold mb-2">
-                        {t("register.reviewSubmit")}
+                        Review &amp; submit
                       </h2>
 
                       <div className="space-y-3 rounded-lg border border-border p-5 bg-background">
-                        <Row label={t("register.rowName")} v={form.watch("name")} />
-                        <Row label={t("register.rowEmail")} v={form.watch("email")} />
-                        <Row label={t("register.rowCompany")} v={form.watch("companyName")} />
+                        <Row label="Name" v={form.watch("name")} />
+                        <Row label="Email" v={form.watch("email")} />
+                        <Row label="Company" v={form.watch("companyName")} />
                         <Row
-                          label={t("register.rowDesignation")}
+                          label="Designation"
                           v={form.watch("designation")}
                         />
-                        <Row label={t("register.rowDocType")} v={form.watch("docType")} />
+                        <Row label="Document type" v={form.watch("docType")} />
                         <Row
-                          label={t("register.rowDocNumber")}
+                          label="Document number"
                           v={form.watch("docNumber")}
                         />
-                        <Row label={t("register.rowRole")} v={form.watch("role")} />
-                        <Row label={t("register.rowBuyerType")} v={form.watch("buyerType")} />
-                        <Row label={t("register.rowPhone")} v={form.watch("phone")} />
-                        <Row label={t("register.rowCountry")} v={form.watch("country")} />
-                        <Row label={t("register.rowAddress")} v={form.watch("address")} />
+                        <Row label="Role" v={form.watch("role")} />
+                        <Row label="Buyer type" v={form.watch("buyerType")} />
+                        <Row label="Phone" v={form.watch("phone")} />
+                        <Row label="Country" v={form.watch("country")} />
+                        <Row label="Address" v={form.watch("address")} />
                         {form.watch("companyUrl") && (
-                          <Row label={t("register.rowWebsite")} v={form.watch("companyUrl")} />
+                          <Row label="Website" v={form.watch("companyUrl")} />
                         )}
                         <Row
-                          label={t("register.rowStand")}
+                          label="Stand option"
                           v={`Stand ${form.watch("standOption")}`}
                         />
                       </div>
@@ -1427,7 +1477,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                       />
 
                       <Field
-                        label={t("register.howHeard")}
+                        label="How did you hear about NordByg? *"
                         error={form.formState.errors.howYouHeard?.message}
                       >
                         <Select
@@ -1439,7 +1489,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           }
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder={t("register.selectOption")} />
+                            <SelectValue placeholder="Select an option" />
                           </SelectTrigger>
                           <SelectContent>
                             {howYouHeardOptions.map((o) => (
@@ -1465,7 +1515,10 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           htmlFor="consent"
                           className="text-sm leading-relaxed font-normal text-muted-foreground"
                         >
-                          {t("register.consentExhibitor")}
+                          I confirm the information above is accurate and I
+                          accept the NordByg Expo 2026 exhibitor terms,
+                          including review by the organising committee before
+                          stand confirmation. *
                         </Label>
                       </div>
                       {form.formState.errors.consent && (
@@ -1487,7 +1540,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           variant="outline"
                           onClick={prev}
                         >
-                          <ArrowLeft className="mr-2 w-4 h-4" /> {t("register.backBtn")}
+                          <ArrowLeft className="mr-2 w-4 h-4" /> Back
                         </Button>
                         <Button
                           type="submit"
@@ -1495,8 +1548,8 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
                           disabled={form.formState.isSubmitting}
                         >
                           {form.formState.isSubmitting
-                            ? t("register.sending")
-                            : t("register.submitRegistration")}
+                            ? "Sending…"
+                            : "Submit registration"}
                           <Check className="ml-2 w-4 h-4" />
                         </Button>
                       </div>
@@ -1520,12 +1573,7 @@ function RegistrationCard({
   r: Registrant;
   onBack: () => void;
 }) {
-  const { t, i18n } = useTranslation();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const isDanish = (i18n.resolvedLanguage ?? i18n.language).startsWith("da");
-  const pdfSrc = isDanish
-    ? "/registration-confirmation-da.html"
-    : "/registration-confirmation.html";
 
   const handlePrint = () => {
     const original = document.title;
@@ -1541,10 +1589,10 @@ function RegistrationCard({
           {/* Action bar */}
           <div className="flex items-center justify-between mb-5 max-w-5xl mx-auto">
             <Button variant="outline" onClick={onBack}>
-              <ArrowLeft className="mr-2 w-4 h-4" /> {t("register.back")}
+              <ArrowLeft className="mr-2 w-4 h-4" /> Back
             </Button>
             <Button onClick={handlePrint}>
-              {t("register.printPdf")}
+              Print / Save as PDF
             </Button>
           </div>
 
@@ -1552,7 +1600,7 @@ function RegistrationCard({
           <div className="rounded-xl overflow-hidden max-w-5xl mx-auto">
             <iframe
               ref={iframeRef}
-              src={pdfSrc}
+              src="/registration-confirmation.html"
               title="Registration Confirmation"
               className="w-full border-0"
               style={{ height: "auto", minHeight: "600px" }}
@@ -1574,7 +1622,6 @@ function RegistrationCard({
 // ─── Verify badge lookup form ─────────────────────────────────────────────────
 
 function VerifyBadge({ onBack }: { onBack: () => void }) {
-  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [regNumber, setRegNumber] = useState("");
   const [error, setError] = useState("");
@@ -1602,7 +1649,9 @@ function VerifyBadge({ onBack }: { onBack: () => void }) {
     if (match) {
       setFound(match);
     } else {
-      setError(t("register.notFound"));
+      setError(
+        "No registration found. Please check your name and registration number.",
+      );
     }
   };
 
@@ -1616,18 +1665,19 @@ function VerifyBadge({ onBack }: { onBack: () => void }) {
             className="max-w-lg mx-auto"
           >
             <Button variant="outline" className="mb-8" onClick={onBack}>
-              <ArrowLeft className="mr-2 w-4 h-4" /> {t("register.back")}
+              <ArrowLeft className="mr-2 w-4 h-4" /> Back
             </Button>
 
             <div className="mb-8">
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-3">
-                {t("register.verifyTopEyebrow")}
+                Already Registered
               </p>
               <h1 className="text-4xl font-bold tracking-tight mb-3">
-                {t("register.downloadAlready")}
+                Download Your Badge
               </h1>
               <p className="text-muted-foreground leading-relaxed">
-                {t("register.verifyIntro")}
+                Enter the full name and registration number you received. Your
+                confirmation badge will appear instantly.
               </p>
             </div>
 
@@ -1635,7 +1685,7 @@ function VerifyBadge({ onBack }: { onBack: () => void }) {
               <form onSubmit={handleLookup} className="space-y-5">
                 <div>
                   <Label className="mb-2 block text-sm font-medium">
-                    {t("register.fullNameLabel")}
+                    Full Name *
                   </Label>
                   <Input
                     value={name}
@@ -1643,13 +1693,13 @@ function VerifyBadge({ onBack }: { onBack: () => void }) {
                       setName(e.target.value);
                       setError("");
                     }}
-                    placeholder={t("register.fullNamePh")}
+                    placeholder="Your Name"
                     required
                   />
                 </div>
                 <div>
                   <Label className="mb-2 block text-sm font-medium">
-                    {t("register.regNumberLabel")}
+                    Registration Number *
                   </Label>
                   <Input
                     value={regNumber}
@@ -1657,7 +1707,7 @@ function VerifyBadge({ onBack }: { onBack: () => void }) {
                       setRegNumber(e.target.value);
                       setError("");
                     }}
-                    placeholder={t("register.regNumberPh")}
+                    placeholder="NB-xxx-xxx"
                     required
                   />
                 </div>
@@ -1667,13 +1717,13 @@ function VerifyBadge({ onBack }: { onBack: () => void }) {
                   </p>
                 )}
                 <Button type="submit" size="lg" className="w-full">
-                  {t("register.findMe")} <ArrowRight className="ml-2 w-4 h-4" />
+                  Find My Registration <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </form>
             </Card>
 
             <p className="text-center text-sm text-muted-foreground mt-6">
-              {t("register.noNumber")}{" "}
+              Don't have a registration number? Email{" "}
               <a
                 href="mailto:info@nordexpo.dk"
                 className="text-primary hover:underline"
@@ -1691,7 +1741,6 @@ function VerifyBadge({ onBack }: { onBack: () => void }) {
 // ─── Type selection screen ────────────────────────────────────────────────────
 
 export default function Register() {
-  const { t } = useTranslation();
   const [type, setType] = useState<"visitor" | "exhibitor" | "verify" | null>(
     null,
   );
@@ -1711,13 +1760,14 @@ export default function Register() {
             className="max-w-5xl mx-auto text-center mb-14"
           >
             <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-              {t("register.eyebrow")}
+              NordByg Expo 2026
             </p>
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight mb-5">
-              {t("register.chooseTitle")}
+              How are you joining us?
             </h1>
             <p className="text-lg text-muted-foreground">
-              {t("register.chooseDesc")}
+              Select the registration type that applies to you. You can always
+              come back and choose the other.
             </p>
           </motion.div>
 
@@ -1737,26 +1787,27 @@ export default function Register() {
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                     <Users className="w-7 h-7 text-primary" />
                   </div>
-                  <h2 className="text-2xl font-bold mb-3">{t("register.visitorTitle")}</h2>
+                  <h2 className="text-2xl font-bold mb-3">Visitor</h2>
                   <p className="text-muted-foreground mb-6 leading-relaxed">
-                    {t("register.visitorDesc")}
+                    Attend NordByg 2026 as a trade visitor. Browse exhibitors,
+                    attend conference talks and explore the show floor.
                   </p>
                   <div className="space-y-2 mb-8 text-sm text-muted-foreground flex-1">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>{t("register.visitorBullet1")}</span>
+                      <span>Access to all 4 exhibition halls</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>{t("register.visitorBullet2")}</span>
+                      <span>Full conference programme included</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>{t("register.visitorBullet3")}</span>
+                      <span>Passes from 245 DKK · Free for members</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-primary font-medium">
-                    {t("register.visitorCta")}{" "}
+                    Register as visitor{" "}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Card>
@@ -1778,26 +1829,27 @@ export default function Register() {
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                     <UserCheck className="w-7 h-7 text-primary" />
                   </div>
-                  <h2 className="text-2xl font-bold mb-3">{t("register.exhibitorTitle")}</h2>
+                  <h2 className="text-2xl font-bold mb-3">Exhibitor</h2>
                   <p className="text-muted-foreground mb-6 leading-relaxed">
-                    {t("register.exhibitorDesc")}
+                    Showcase your company, products and services to 12,000+
+                    trade visitors from across the Nordic construction sector.
                   </p>
                   <div className="space-y-2 mb-8 text-sm text-muted-foreground flex-1">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>{t("register.exhibitorBullet1")}</span>
+                      <span>Shell-scheme or space-only stands</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>{t("register.exhibitorBullet2")}</span>
+                      <span>9 m² to 72 m² options available</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>{t("register.exhibitorBullet3")}</span>
+                      <span>Reviewed within 3 business days</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-primary font-medium">
-                    {t("register.exhibitorCta")}{" "}
+                    Register as exhibitor{" "}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Card>
@@ -1820,27 +1872,29 @@ export default function Register() {
                     <BadgeCheck className="w-7 h-7 text-primary" />
                   </div>
                   <h2 className="text-2xl font-bold mb-3">
-                    {t("register.verifyTitle")}
+                    Already Registered
                   </h2>
                   <p className="text-muted-foreground mb-6 leading-relaxed">
-                    {t("register.verifyDesc")}
+                    Already submitted your registration? View and print your
+                    official confirmation letter. Your badge will be collected
+                    at the accreditation desk upon arrival.
                   </p>
                   <div className="space-y-2 mb-8 text-sm text-muted-foreground flex-1">
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>{t("register.verifyBullet1")}</span>
+                      <span>View your confirmation letter</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>{t("register.verifyBullet2")}</span>
+                      <span>Print &amp; Save document</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Check className="w-4 h-4 text-primary shrink-0" />
-                      <span>{t("register.verifyBullet3")}</span>
+                      <span>To view enter name and registration number</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-primary font-medium">
-                    {t("register.verifyCta")}{" "}
+                    View my confirmation{" "}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </Card>
@@ -1854,7 +1908,7 @@ export default function Register() {
             transition={{ delay: 0.4 }}
             className="text-center mt-10 text-sm text-muted-foreground"
           >
-            {t("register.questions")}{" "}
+            Questions? Email us at{" "}
             <a
               href="mailto:info@nordexpo.dk"
               className="text-primary hover:underline"

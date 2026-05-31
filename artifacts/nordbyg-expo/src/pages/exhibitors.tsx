@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Search, MapPin } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { Layout } from "@/components/layout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,6 @@ import {
 import { exhibitors } from "@/lib/data";
 
 export default function Exhibitors() {
-  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
   const [active, setActive] = useState<typeof exhibitors[number] | null>(null);
@@ -42,13 +40,15 @@ export default function Exhibitors() {
             className="max-w-3xl mb-12"
           >
             <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-              {t("exhibitors.eyebrow")}
+              Exhibitor Directory
             </p>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5">
-              {t("exhibitors.title")}
+              350+ companies. The Nordic construction industry, in one hall.
             </h1>
             <p className="text-lg text-muted-foreground">
-              {t("exhibitors.intro")}
+              Below are the featured anchor exhibitors for NordByg 2026. The
+              full alphabetical directory of all 350+ companies is published
+              on 1 June 2026.
             </p>
           </motion.div>
 
@@ -58,7 +58,7 @@ export default function Exhibitors() {
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={t("exhibitors.searchPlaceholder")}
+                placeholder="Search exhibitors..."
                 className="pl-10 h-12"
               />
             </div>
@@ -70,7 +70,7 @@ export default function Exhibitors() {
               variant={cat === null ? "default" : "outline"}
               onClick={() => setCat(null)}
             >
-              {t("exhibitors.allCategories")}
+              All categories
             </Button>
             {cats.map((c) => (
               <Button
@@ -120,7 +120,7 @@ export default function Exhibitors() {
 
           {filtered.length === 0 && (
             <div className="text-center py-20 text-muted-foreground">
-              {t("exhibitors.noResults")}
+              No exhibitors match your search.
             </div>
           )}
         </div>
@@ -141,16 +141,17 @@ export default function Exhibitors() {
               </DialogHeader>
               <div className="grid grid-cols-2 gap-4 pt-4">
                 <div className="p-4 rounded-lg bg-muted/40">
-                  <div className="text-xs uppercase text-muted-foreground mb-1">{t("exhibitors.country")}</div>
+                  <div className="text-xs uppercase text-muted-foreground mb-1">Country</div>
                   <div className="font-semibold">{active.country}</div>
                 </div>
                 <div className="p-4 rounded-lg bg-muted/40">
-                  <div className="text-xs uppercase text-muted-foreground mb-1">{t("exhibitors.stand")}</div>
+                  <div className="text-xs uppercase text-muted-foreground mb-1">Stand</div>
                   <div className="font-semibold">{active.hall}</div>
                 </div>
               </div>
               <div className="pt-4 text-sm text-muted-foreground">
-                {t("exhibitors.dialogVisit")}
+                Visit this exhibitor at NordByg 2026 — 6&nbsp;—&nbsp;8
+                July at Bella Center Copenhagen.
               </div>
             </>
           )}

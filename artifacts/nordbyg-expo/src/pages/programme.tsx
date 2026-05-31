@@ -1,21 +1,14 @@
 import { motion } from "framer-motion";
 import { Clock, MapPin, User } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { Layout } from "@/components/layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { fullProgramme, programmeDays } from "@/lib/data";
+import { fullProgramme } from "@/lib/data";
 
-const shortKeyFor = (dayKey: (typeof programmeDays)[number]) => {
-  if (dayKey === "programme.day1Full") return "programme.day1Short";
-  if (dayKey === "programme.day2Full") return "programme.day2Short";
-  return "programme.day3Short";
-};
+const days = Object.keys(fullProgramme);
 
 export default function Programme() {
-  const { t } = useTranslation();
-
   return (
     <Layout>
       <div className="pt-28 pb-20">
@@ -26,32 +19,34 @@ export default function Programme() {
             className="max-w-3xl mb-12"
           >
             <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-              {t("programme.eyebrow")}
+              Conference Programme
             </p>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-5">
-              {t("programme.title")}
+              Three days. Six stages. 80 speakers.
             </h1>
             <p className="text-lg text-muted-foreground">
-              {t("programme.intro")}
+              A curated programme covering BIM, sustainability, machinery,
+              architecture, policy and the future of Danish construction.
+              All Main Stage talks include simultaneous DA↔EN interpretation.
             </p>
           </motion.div>
 
-          <Tabs defaultValue={programmeDays[0]}>
+          <Tabs defaultValue={days[0]}>
             <TabsList className="mb-8 h-auto bg-card p-1">
-              {programmeDays.map((d) => (
+              {days.map((d) => (
                 <TabsTrigger key={d} value={d} className="text-sm py-2.5 px-4">
-                  {t(shortKeyFor(d))}
+                  {d.split("—")[0].trim()}
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            {programmeDays.map((d) => (
+            {days.map((d) => (
               <TabsContent key={d} value={d}>
                 <div className="mb-6 text-sm text-muted-foreground uppercase tracking-widest">
-                  {t(d)}
+                  {d}
                 </div>
                 <div className="space-y-3">
-                  {fullProgramme[d].map((s, i) => (
+                  {fullProgramme[d as keyof typeof fullProgramme].map((s, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, x: -20 }}
