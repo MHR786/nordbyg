@@ -1,6 +1,7 @@
-﻿import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import { Leaf, Users, Newspaper, Send } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Layout } from "@/components/layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,24 +10,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
-const board = [
-  { name: "Mette Lindholm", role: "Chair · Former CEO, MT Højgaard" },
-  { name: "Jens Aage Toft", role: "Director, MCH Group" },
-  { name: "Karin Dyhr", role: "Secretary General, DI Byg" },
-  { name: "Per Skovgaard", role: "Architect MAA, Henning Larsen" },
-];
-
-const milestones = [
-  { y: "2014", t: "First edition of NordByg held with 92 exhibitors at Bella Center." },
-  { y: "2017", t: "Conference programme launched; first BIM-dedicated track introduced." },
-  { y: "2020", t: "Hybrid digital edition during the pandemic — 8,000 online participants." },
-  { y: "2023", t: "Crossed 250 exhibitors and 10,000 visitors for the first time." },
-  { y: "2026", t: "11th edition: 350+ exhibitors, 12,000+ visitors, 25,000 m² of show floor." },
-];
-
 export default function About() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [sending, setSending] = useState(false);
+
+  const board = [
+    { name: "Mette Lindholm", role: t("about.boardChair") },
+    { name: "Jens Aage Toft", role: t("about.boardDirector") },
+    { name: "Karin Dyhr", role: t("about.boardSec") },
+    { name: "Per Skovgaard", role: t("about.boardArch") },
+  ];
+
+  const milestones = [
+    { y: "2014", t: t("about.m2014") },
+    { y: "2017", t: t("about.m2017") },
+    { y: "2020", t: t("about.m2020") },
+    { y: "2023", t: t("about.m2023") },
+    { y: "2026", t: t("about.m2026") },
+  ];
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,8 +37,8 @@ export default function About() {
       setSending(false);
       (e.target as HTMLFormElement).reset();
       toast({
-        title: "Message sent",
-        description: "Thank you. Our team will reply within 1 business day.",
+        title: t("about.sent"),
+        description: t("about.sentDesc"),
       });
     }, 600);
   };
@@ -52,35 +54,22 @@ export default function About() {
             className="max-w-3xl mb-16"
           >
             <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-              About NordByg Expo
+              {t("about.eyebrow")}
             </p>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-              Twelve years of building the Danish construction conversation.
+              {t("about.title")}
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              NordByg Expo was founded in 2014 by a coalition of MCH Group and
-              Dansk Byggeri (DI Byg) with one mission: create a single annual
-              meeting place where every part of the Danish construction value
-              chain — from material producers to site craftsmen, architects to
-              kommune inspectors — can do business face to face.
+              {t("about.intro")}
             </p>
           </motion.div>
 
           {/* Mission */}
           <div className="grid md:grid-cols-3 gap-5 mb-20">
             {[
-              {
-                t: "Industry-led",
-                d: "Owned and steered by the Danish construction industry, not by media or PR conglomerates. Every exhibitor decision is reviewed by a working group of contractors, architects and suppliers.",
-              },
-              {
-                t: "Locally rooted",
-                d: "Held annually at Bella Center Copenhagen — Scandinavia's largest exhibition campus. We are a Danish event built for Danish buildings, opened to Nordic and European partners.",
-              },
-              {
-                t: "Climate-aligned",
-                d: "Aligned with the Danish 2030 climate targets. We measure NordByg's own footprint, source local catering, run a carpet-free show floor and offset residual emissions through verified Nordic woodland projects.",
-              },
+              { t: t("about.m1Title"), d: t("about.m1Desc") },
+              { t: t("about.m2Title"), d: t("about.m2Desc") },
+              { t: t("about.m3Title"), d: t("about.m3Desc") },
             ].map((c, i) => (
               <motion.div
                 key={c.t}
@@ -99,7 +88,7 @@ export default function About() {
 
           {/* Timeline */}
           <div className="mb-20">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-10">Our story</h2>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-10">{t("about.ourStory")}</h2>
             <div className="relative pl-8 border-l-2 border-primary/30 space-y-8">
               {milestones.map((m, i) => (
                 <motion.div
@@ -122,7 +111,7 @@ export default function About() {
           <div className="mb-20">
             <div className="flex items-center gap-3 mb-8">
               <Users className="w-6 h-6 text-primary" />
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Advisory board</h2>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">{t("about.boardTitle")}</h2>
             </div>
             <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
               {board.map((b, i) => (
@@ -154,13 +143,13 @@ export default function About() {
                 <Leaf className="w-12 h-12 text-primary" />
               </div>
               <div className="md:col-span-9">
-                <h2 className="text-3xl font-bold tracking-tight mb-4">Sustainability commitments</h2>
+                <h2 className="text-3xl font-bold tracking-tight mb-4">{t("about.sustainTitle")}</h2>
                 <ul className="space-y-3 text-muted-foreground">
-                  <li>· 100% renewable electricity supplied to the show floor by Ørsted.</li>
-                  <li>· Carpet-free show floor since 2022 — saving an estimated 40 tonnes of single-use textile annually.</li>
-                  <li>· All exhibitor catering sourced within 100 km of Copenhagen, with 60%+ plant-based menu by default.</li>
-                  <li>· Verified offsetting of residual emissions through Nordic woodland restoration projects in Sjælland and Småland.</li>
-                  <li>· Free cycle parking and discounted public-transport passes for all visitors and staff.</li>
+                  <li>{t("about.sustain1")}</li>
+                  <li>{t("about.sustain2")}</li>
+                  <li>{t("about.sustain3")}</li>
+                  <li>{t("about.sustain4")}</li>
+                  <li>{t("about.sustain5")}</li>
                 </ul>
               </div>
             </div>
@@ -170,7 +159,7 @@ export default function About() {
           <div className="mb-20">
             <div className="flex items-center gap-3 mb-6">
               <Newspaper className="w-6 h-6 text-primary" />
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">As featured in</h2>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">{t("about.pressTitle")}</h2>
             </div>
             <div className="flex flex-wrap items-center gap-x-12 gap-y-4 opacity-70">
               {["Berlingske Business", "Børsen", "Building Supply DK", "Licitationen", "Politiken", "Arkitekten Magasinet", "Ingeniøren"].map(n => (
@@ -182,15 +171,13 @@ export default function About() {
           {/* Contact form */}
           <div className="grid lg:grid-cols-2 gap-10">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Get in touch</h2>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{t("about.contactTitle")}</h2>
               <p className="text-muted-foreground mb-6">
-                Press enquiries, partnership proposals, speaker submissions —
-                send us a message and our team will respond within one
-                business day.
+                {t("about.contactDesc")}
               </p>
               <div className="space-y-4 text-sm">
                 <div>
-                  <div className="text-xs uppercase text-muted-foreground tracking-widest">Email</div>
+                  <div className="text-xs uppercase text-muted-foreground tracking-widest">{t("about.email")}</div>
                   <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">info@nordexpo.dk</a>
                 </div>
               </div>
@@ -198,20 +185,20 @@ export default function About() {
             <Card className="p-6 md:p-8 bg-card">
               <form onSubmit={submit} className="space-y-4">
                 <div>
-                  <Label htmlFor="cn" className="mb-2 block">Your name</Label>
+                  <Label htmlFor="cn" className="mb-2 block">{t("about.yourName")}</Label>
                   <Input id="cn" required />
                 </div>
                 <div>
-                  <Label htmlFor="ce" className="mb-2 block">Email</Label>
+                  <Label htmlFor="ce" className="mb-2 block">{t("about.emailLabel")}</Label>
                   <Input id="ce" type="email" required />
                 </div>
                 <div>
-                  <Label htmlFor="cm" className="mb-2 block">Message</Label>
+                  <Label htmlFor="cm" className="mb-2 block">{t("about.message")}</Label>
                   <Textarea id="cm" rows={5} required />
                 </div>
                 <Button type="submit" size="lg" className="w-full" disabled={sending}>
                   <Send className="mr-2 w-4 h-4" />
-                  {sending ? "Sending..." : "Send message"}
+                  {sending ? t("about.sending") : t("about.sendMessage")}
                 </Button>
               </form>
             </Card>

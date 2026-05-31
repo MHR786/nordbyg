@@ -1,6 +1,7 @@
-﻿import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import {
   ArrowRight,
   Calendar,
@@ -42,13 +43,60 @@ import craftsman from "@/assets/images/craftsman.png";
 import prefab from "@/assets/images/prefab.png";
 import timber from "@/assets/images/timber-construction.png";
 
-function downloadBrochure() {
-  const text = `NORDBYG EXPO 2026 — DENMARK'S CONSTRUCTION & BUILDING TRADE SHOW
+function downloadBrochure(lang: string) {
+  const isDanish = lang.startsWith("da");
+  const text = isDanish
+    ? `NORDBYG EXPO 2026 — DANMARKS BYGGE- OG ANLÆGSMESSE
 ================================================================
 
-Dates:    15 — 17 June 2026
+Datoer:    6. — 8. juli 2026
+Sted:      Bella Center København, Center Boulevard 5, 2300 København S
+Tider:     Mandag — Onsdag  09:00 — 18:00
+
+OM NORDBYG
+-------------
+NordByg Expo samler hele det danske og nordiske byggeøkosystem
+under ét tag: 350+ udstillere, 12.000+ fagbesøgende, 80+ talere
+og 25.000 m² dedikeret udstillingsareal.
+
+FOKUSOMRÅDER
+-----------
+• BIM og digitalt byggeri
+• Bæredygtige byggematerialer
+• Tunge maskiner og udstyr
+• Værktøj og håndværkerudstyr
+• Præfab og modulbyggeri
+• Smarte bygninger og facadeteknologi
+• Sikkerhed, compliance og standarder
+• Arkitektur og urbant design
+
+UDSTILLERPRISER (vejledende)
+------------------------------
+9 m²  shell-scheme    fra   12.400 DKK
+18 m² shell-scheme    fra   23.800 DKK
+36 m² space-only      fra   42.500 DKK
+72 m² space-only      fra   78.000 DKK
+
+BESØGSBILLETTER
+---------------
+1-dages fagpas        245 DKK
+3-dages fagpas        545 DKK
+Studerende (med ID)    95 DKK
+DI Byg / AOB-medlemmer  gratis
+
+KONTAKT
+-------
+NordByg Expo Sekretariat
+E-mail:  info@nordexpo.dk
+
+Tilmeld i dag på nordexpo.dk/register
+`
+    : `NORDBYG EXPO 2026 — DENMARK'S CONSTRUCTION & BUILDING TRADE SHOW
+================================================================
+
+Dates:    6 — 8 July 2026
 Venue:    Bella Center Copenhagen, Center Boulevard 5, 2300 København S
-Hours:    Tuesday — Thursday  09:00 — 18:00
+Hours:    Monday — Wednesday  09:00 — 18:00
 
 ABOUT NORDBYG
 -------------
@@ -92,7 +140,9 @@ Register today at nordexpo.dk/register
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "nordbyg-expo-2026-brochure.txt";
+  a.download = isDanish
+    ? "nordbyg-expo-2026-brochure-da.txt"
+    : "nordbyg-expo-2026-brochure.txt";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -140,6 +190,7 @@ function FadeIn({
 }
 
 export default function Home() {
+  const { t, i18n } = useTranslation();
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -182,7 +233,7 @@ export default function Home() {
             >
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
               <span className="text-sm font-medium text-primary">
-                Registration open · 11th edition
+                {t("home.statusOpen")}
               </span>
             </motion.div>
 
@@ -192,9 +243,9 @@ export default function Home() {
               transition={{ delay: 0.1, duration: 0.8 }}
               className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[0.95]"
             >
-              Building the<br />
-              <span className="text-primary">Nordic future</span><br />
-              <span className="text-muted-foreground/80">together.</span>
+              {t("home.heroTitle1")}<br />
+              <span className="text-primary">{t("home.heroTitle2")}</span><br />
+              <span className="text-muted-foreground/80">{t("home.heroTitle3")}</span>
             </motion.h1>
 
             <motion.p
@@ -203,9 +254,7 @@ export default function Home() {
               transition={{ delay: 0.25 }}
               className="text-lg md:text-2xl text-muted-foreground mb-10 max-w-2xl"
             >
-              Denmark's flagship trade expo for construction, building and the
-              craftsmen who shape the country — three days of machinery, BIM
-              technology, sustainable materials and the people who use them.
+              {t("home.heroSubtitle")}
             </motion.p>
 
             <motion.div
@@ -219,7 +268,7 @@ export default function Home() {
                   size="lg"
                   className="h-14 px-8 text-base bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  Registration
+                  {t("home.registration")}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
@@ -233,12 +282,12 @@ export default function Home() {
             >
               <div className="flex items-center gap-2 text-foreground/80">
                 <Calendar className="w-5 h-5 text-primary" />
-                <span className="font-medium">15 — 17 June 2026</span>
+                <span className="font-medium">{t("home.dates")}</span>
               </div>
               <div className="flex items-center gap-2 text-foreground/80">
                 <MapPin className="w-5 h-5 text-primary" />
                 <span className="font-medium">
-                  Bella Center · Copenhagen
+                  {t("home.venue")}
                 </span>
               </div>
             </motion.div>
@@ -251,13 +300,13 @@ export default function Home() {
       <Section className="border-y border-border bg-card/50 py-14!">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4">
           {expoStats.map((s, i) => (
-            <FadeIn key={s.label} delay={i * 0.06}>
+            <FadeIn key={s.labelKey} delay={i * 0.06}>
               <div className="text-center">
                 <div className="text-4xl md:text-5xl font-bold text-primary tracking-tight">
                   <Counter to={s.value} suffix={s.suffix} />
                 </div>
                 <div className="text-xs md:text-sm uppercase tracking-widest text-muted-foreground mt-2">
-                  {s.label}
+                  {t(s.labelKey)}
                 </div>
               </div>
             </FadeIn>
@@ -281,37 +330,30 @@ export default function Home() {
           <FadeIn delay={0.15}>
             <div>
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-                About NordByg 2026
+                {t("home.aboutEyebrow")}
               </p>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-                Where Danish construction comes to do business.
+                {t("home.aboutTitle")}
               </h2>
               <p className="text-lg text-muted-foreground mb-5 leading-relaxed">
-                For over a decade NordByg has been the meeting place for
-                Denmark's construction industry — the contractors building
-                København's new districts, the suppliers reinventing low-carbon
-                materials, and the håndværkere who finish every project with
-                Nordic precision.
+                {t("home.aboutPara1")}
               </p>
               <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                In 2026 we return to Bella Center with our most ambitious
-                edition yet: four halls, a dedicated outdoor machinery yard,
-                three days of conference and the largest BIM &amp; Digital
-                Construction track ever assembled in Scandinavia.
+                {t("home.aboutPara2")}
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link href="/about">
                   <Button variant="outline" size="lg">
-                    Read our story <ChevronRight className="ml-1 w-4 h-4" />
+                    {t("home.readStory")} <ChevronRight className="ml-1 w-4 h-4" />
                   </Button>
                 </Link>
                 <Button
                   size="lg"
                   variant="ghost"
-                  onClick={downloadBrochure}
+                  onClick={() => downloadBrochure(i18n.language)}
                   className="text-foreground hover:text-primary"
                 >
-                  <Download className="mr-2 w-4 h-4" /> Download brochure
+                  <Download className="mr-2 w-4 h-4" /> {t("home.downloadBrochure")}
                 </Button>
               </div>
             </div>
@@ -324,14 +366,13 @@ export default function Home() {
         <FadeIn>
           <div className="max-w-3xl mb-16">
             <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-              Focus Areas
+              {t("home.focusEyebrow")}
             </p>
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-              Eight verticals. One construction industry.
+              {t("home.focusTitle")}
             </h2>
             <p className="text-lg text-muted-foreground">
-              Every square metre of the show floor is curated around the
-              themes shaping Danish construction over the next decade.
+              {t("home.focusDesc")}
             </p>
           </div>
         </FadeIn>
@@ -339,16 +380,16 @@ export default function Home() {
           {focusAreas.map((f, i) => {
             const Icon = f.icon;
             return (
-              <FadeIn key={f.title} delay={(i % 4) * 0.05}>
+              <FadeIn key={f.titleKey} delay={(i % 4) * 0.05}>
                 <Card className="h-full p-6 bg-background hover:border-primary/40 transition-colors group">
                   <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
                     <Icon className="w-6 h-6 text-primary" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2 leading-tight">
-                    {f.title}
+                    {t(f.titleKey)}
                   </h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    {f.desc}
+                    {t(f.descKey)}
                   </p>
                 </Card>
               </FadeIn>
@@ -363,17 +404,17 @@ export default function Home() {
           <FadeIn>
             <div className="max-w-2xl">
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-                Featured Exhibitors
+                {t("home.exhibitorsEyebrow")}
               </p>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-                350+ companies. The biggest names in Nordic construction.
+                {t("home.exhibitorsTitle")}
               </h2>
             </div>
           </FadeIn>
           <FadeIn delay={0.1}>
             <Link href="/exhibitors">
               <Button variant="outline" size="lg">
-                See full directory <ArrowRight className="ml-2 w-4 h-4" />
+                {t("home.seeDirectory")} <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
           </FadeIn>
@@ -414,18 +455,17 @@ export default function Home() {
           <FadeIn className="lg:col-span-4">
             <div>
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-                Conference Programme
+                {t("home.programmeEyebrow")}
               </p>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-                80 speakers. 3 days. 6 stages.
+                {t("home.programmeTitle")}
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Hear from the architects, engineers, contractors and
-                policy-makers writing the next chapter of Danish construction.
+                {t("home.programmeDesc")}
               </p>
               <Link href="/programme">
                 <Button size="lg">
-                  See full programme <ArrowRight className="ml-2 w-4 h-4" />
+                  {t("home.seeProgramme")} <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
               <div className="mt-10 rounded-xl overflow-hidden border border-border aspect-video">
@@ -438,13 +478,13 @@ export default function Home() {
               <FadeIn key={sp.name} delay={i * 0.08}>
                 <Card className="p-6 h-full bg-background flex flex-col">
                   <div className="text-xs uppercase tracking-widest text-primary font-medium mb-3">
-                    {sp.day} · {sp.track}
+                    {t(sp.dayKey)} · {t(sp.trackKey)}
                   </div>
                   <h3 className="text-xl font-semibold leading-tight mb-2">
-                    {sp.talk}
+                    {t(sp.talkKey)}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-5 leading-relaxed flex-1">
-                    {sp.bio}
+                    {t(sp.bioKey)}
                   </p>
                   <div className="pt-4 border-t border-border">
                     <div className="font-semibold">{sp.name}</div>
@@ -463,23 +503,20 @@ export default function Home() {
           <FadeIn>
             <div>
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-                The Venue
+                {t("home.venueEyebrow")}
               </p>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-                Bella Center Copenhagen — Scandinavia's largest exhibition
-                campus.
+                {t("home.venueTitle")}
               </h2>
               <p className="text-lg text-muted-foreground mb-5 leading-relaxed">
-                25,000 m² of dedicated NordByg floor space across four
-                interconnected halls, plus a 4,000 m² outdoor machinery yard
-                for live equipment demonstrations.
+                {t("home.venueDesc")}
               </p>
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {[
-                  { h: "Hall A", l: "Materials & Insulation" },
-                  { h: "Hall B", l: "Tools & Workshops" },
-                  { h: "Hall C", l: "Contractors & Architecture" },
-                  { h: "Hall D", l: "Machinery & Energy" },
+                  { h: t("home.hallA"), l: t("home.hallALabel") },
+                  { h: t("home.hallB"), l: t("home.hallBLabel") },
+                  { h: t("home.hallC"), l: t("home.hallCLabel") },
+                  { h: t("home.hallD"), l: t("home.hallDLabel") },
                 ].map((x) => (
                   <div key={x.h} className="p-4 rounded-lg border border-border bg-card">
                     <div className="font-semibold text-primary">{x.h}</div>
@@ -489,7 +526,7 @@ export default function Home() {
               </div>
               <Link href="/visit">
                 <Button size="lg" variant="outline">
-                  Plan your visit <ChevronRight className="ml-1 w-4 h-4" />
+                  {t("home.planVisit")} <ChevronRight className="ml-1 w-4 h-4" />
                 </Button>
               </Link>
             </div>
@@ -509,7 +546,7 @@ export default function Home() {
                   <FloorPlanScene />
                 </WebGLBoundary>
                 <div className="absolute bottom-3 left-4 text-xs uppercase tracking-widest text-muted-foreground bg-background/60 backdrop-blur px-3 py-1 rounded-full">
-                  Interactive floor plan · auto-rotating preview
+                  {t("home.floorPlanCaption")}
                 </div>
               </div>
               <div className="rounded-xl overflow-hidden border border-border aspect-video">
@@ -525,27 +562,27 @@ export default function Home() {
         <FadeIn>
           <div className="max-w-3xl mb-14">
             <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-              From the industry
+              {t("home.testimonialsEyebrow")}
             </p>
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-              Why people come back, year after year.
+              {t("home.testimonialsTitle")}
             </h2>
           </div>
         </FadeIn>
         <div className="grid md:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => (
-            <FadeIn key={t.name} delay={i * 0.1}>
+          {testimonials.map((tt, i) => (
+            <FadeIn key={tt.name} delay={i * 0.1}>
               <Card className="p-8 h-full bg-background flex flex-col">
                 <Quote className="w-8 h-8 text-primary mb-4" />
                 <p className="text-lg leading-relaxed mb-6 flex-1">
-                  {t.quote}
+                  {t(tt.quoteKey)}
                 </p>
                 <div className="pt-5 border-t border-border">
-                  <div className="font-semibold">{t.name}</div>
-                  <div className="text-sm text-muted-foreground">{t.role}</div>
+                  <div className="font-semibold">{tt.name}</div>
+                  <div className="text-sm text-muted-foreground">{t(tt.roleKey)}</div>
                   <div className="flex gap-1 mt-2">
-                    {[0, 1, 2, 3, 4].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-primary text-primary" />
+                    {[0, 1, 2, 3, 4].map((j) => (
+                      <Star key={j} className="w-4 h-4 fill-primary text-primary" />
                     ))}
                   </div>
                 </div>
@@ -563,8 +600,8 @@ export default function Home() {
               <img src={timber} alt="Cross-laminated timber construction" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-linear-to-t from-background via-background/30 to-transparent" />
               <div className="absolute bottom-0 p-8">
-                <div className="text-xs uppercase tracking-widest text-primary mb-2">Sustainability Hall</div>
-                <h3 className="text-2xl md:text-3xl font-bold leading-tight max-w-md">Cross-laminated timber, low-carbon concrete and biobased insulation — under one roof.</h3>
+                <div className="text-xs uppercase tracking-widest text-primary mb-2">{t("home.sustainabilityHall")}</div>
+                <h3 className="text-2xl md:text-3xl font-bold leading-tight max-w-md">{t("home.sustainabilityTitle")}</h3>
               </div>
             </div>
           </FadeIn>
@@ -574,8 +611,8 @@ export default function Home() {
                 <img src={prefab} alt="Prefab modular construction" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-linear-to-t from-background to-transparent" />
                 <div className="absolute bottom-0 p-5">
-                  <div className="text-xs uppercase tracking-widest text-primary mb-1">Modular</div>
-                  <h4 className="text-lg font-semibold leading-tight">Off-site, on-time prefab</h4>
+                  <div className="text-xs uppercase tracking-widest text-primary mb-1">{t("home.modular")}</div>
+                  <h4 className="text-lg font-semibold leading-tight">{t("home.modularTitle")}</h4>
                 </div>
               </div>
             </FadeIn>
@@ -584,8 +621,8 @@ export default function Home() {
                 <img src={archModel} alt="Architectural model" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-linear-to-t from-background to-transparent" />
                 <div className="absolute bottom-0 p-5">
-                  <div className="text-xs uppercase tracking-widest text-primary mb-1">Architecture</div>
-                  <h4 className="text-lg font-semibold leading-tight">From sketch to skyline</h4>
+                  <div className="text-xs uppercase tracking-widest text-primary mb-1">{t("home.architecture")}</div>
+                  <h4 className="text-lg font-semibold leading-tight">{t("home.architectureTitle")}</h4>
                 </div>
               </div>
             </FadeIn>
@@ -597,12 +634,12 @@ export default function Home() {
       <Section className="bg-card/30 border-y border-border py-16!">
         <FadeIn>
           <p className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-8">
-            2026 partners &amp; sponsors
+            {t("home.sponsorsTitle")}
           </p>
         </FadeIn>
         <FadeIn delay={0.05}>
           <div className="text-center mb-3 text-xs text-primary font-medium uppercase tracking-widest">
-            Platinum
+            {t("home.sponsorsPlatinum")}
           </div>
           <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-4 mb-8">
             {sponsors.platinum.map((n) => (
@@ -614,7 +651,7 @@ export default function Home() {
         </FadeIn>
         <FadeIn delay={0.1}>
           <div className="text-center mb-3 text-xs text-primary/70 font-medium uppercase tracking-widest">
-            Gold
+            {t("home.sponsorsGold")}
           </div>
           <div className="flex flex-wrap justify-center items-center gap-x-10 gap-y-3 mb-6">
             {sponsors.gold.map((n) => (
@@ -641,14 +678,13 @@ export default function Home() {
           <FadeIn className="lg:col-span-4">
             <div>
               <p className="text-sm font-medium uppercase tracking-widest text-primary mb-4">
-                FAQ
+                {t("home.faqEyebrow")}
               </p>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-                Everything you need to know.
+                {t("home.faqTitle")}
               </h2>
               <p className="text-lg text-muted-foreground mb-6">
-                Can't find what you're looking for?
-                Email us at{" "}
+                {t("home.faqCantFind")}{" "}
                 <a href="mailto:info@nordexpo.dk" className="text-primary hover:underline">
                   info@nordexpo.dk
                 </a>
@@ -662,10 +698,10 @@ export default function Home() {
                 {faqs.map((f, i) => (
                   <AccordionItem key={i} value={`item-${i}`} className="border-border">
                     <AccordionTrigger className="text-left text-lg font-medium hover:text-primary py-5">
-                      {f.q}
+                      {t(f.qKey)}
                     </AccordionTrigger>
                     <AccordionContent className="text-muted-foreground text-base leading-relaxed pb-5">
-                      {f.a}
+                      {t(f.aKey)}
                     </AccordionContent>
                   </AccordionItem>
                 ))}
@@ -684,22 +720,20 @@ export default function Home() {
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <FadeIn>
             <h2 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-              Reserve your stand for <span className="text-primary">NordByg 2026</span>.
+              {t("home.ctaTitle1")} <span className="text-primary">{t("home.ctaTitle2")}</span>.
             </h2>
             <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Stand bookings for the 11th edition opened in March 2026 and 78%
-              of our 2025 exhibitors have already renewed. Secure your hall
-              position today.
+              {t("home.ctaDesc")}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link href="/register">
                 <Button size="lg" className="h-14 px-10 text-base">
-                  Register as Exhibitor <ArrowRight className="ml-2 w-5 h-5" />
+                  {t("home.registerExhibitor")} <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
               <a href="mailto:info@nordexpo.dk?subject=Stand%20enquiry%20—%20NordByg%202026">
                 <Button size="lg" variant="outline" className="h-14 px-10 text-base">
-                  Talk to our team
+                  {t("home.talkToTeam")}
                 </Button>
               </a>
             </div>

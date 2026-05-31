@@ -1,4 +1,4 @@
-﻿import { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, ArrowRight, MapPin, Calendar, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { LanguageToggle } from "@/components/language-toggle";
 
 interface LayoutProps {
   children: ReactNode;
@@ -16,6 +18,7 @@ export function Layout({ children }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,18 +29,18 @@ export function Layout({ children }: LayoutProps) {
   }, []);
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/exhibitors", label: "Exhibitors" },
-    { href: "/programme", label: "Programme" },
-    { href: "/visit", label: "Visit" },
-    { href: "/about", label: "About" },
+    { href: "/", label: t("nav.home") },
+    { href: "/exhibitors", label: t("nav.exhibitors") },
+    { href: "/programme", label: t("nav.programme") },
+    { href: "/visit", label: t("nav.visit") },
+    { href: "/about", label: t("nav.about") },
   ];
 
   const handleNewsletter = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
-      title: "Subscribed successfully",
-      description: "You'll receive our latest updates.",
+      title: t("footer.subscribed"),
+      description: t("footer.subscribedDesc"),
     });
     (e.target as HTMLFormElement).reset();
   };
@@ -69,21 +72,26 @@ export function Layout({ children }: LayoutProps) {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
+            <LanguageToggle />
             <Link href="/register">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium">
-                Registration <ArrowRight className="ml-2 w-4 h-4" />
+                {t("nav.registration")} <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <button 
-            className="md:hidden z-50 text-foreground"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X /> : <Menu />}
-          </button>
+          {/* Mobile controls */}
+          <div className="flex items-center gap-2 md:hidden z-50">
+            <LanguageToggle />
+            <button
+              className="text-foreground"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Menu"
+            >
+              {mobileMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -108,7 +116,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="mt-auto pb-8">
               <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
                 <Button size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-                  Registration
+                  {t("nav.registration")}
                 </Button>
               </Link>
             </div>
@@ -133,23 +141,23 @@ export function Layout({ children }: LayoutProps) {
                 <span className="text-xl font-bold tracking-tight">NordByg <span className="text-primary">Expo</span></span>
               </Link>
               <p className="text-muted-foreground text-sm max-w-xs">
-                Scandinavia's premier destination for construction innovation, BIM tech, and sustainable building materials.
+                {t("footer.tagline")}
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold text-lg mb-6">Quick Links</h3>
+              <h3 className="font-semibold text-lg mb-6">{t("footer.quickLinks")}</h3>
               <ul className="space-y-3">
-                <li><Link href="/exhibitors" className="text-muted-foreground hover:text-primary transition-colors">Exhibitor Directory</Link></li>
-                <li><Link href="/programme" className="text-muted-foreground hover:text-primary transition-colors">Conference Programme</Link></li>
-                <li><Link href="/visit" className="text-muted-foreground hover:text-primary transition-colors">Plan Your Visit</Link></li>
-                <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">About NordByg</Link></li>
-                <li><Link href="/register" className="text-muted-foreground hover:text-primary transition-colors">Registration</Link></li>
+                <li><Link href="/exhibitors" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.exhibitorDirectory")}</Link></li>
+                <li><Link href="/programme" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.conferenceProgramme")}</Link></li>
+                <li><Link href="/visit" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.planVisit")}</Link></li>
+                <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">{t("footer.aboutNordByg")}</Link></li>
+                <li><Link href="/register" className="text-muted-foreground hover:text-primary transition-colors">{t("nav.registration")}</Link></li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-semibold text-lg mb-6">Contact Info</h3>
+              <h3 className="font-semibold text-lg mb-6">{t("footer.contactInfo")}</h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3 text-muted-foreground">
                   <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -157,7 +165,7 @@ export function Layout({ children }: LayoutProps) {
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
                   <Calendar className="w-5 h-5 text-primary shrink-0" />
-                  <span>15-17 June 2026</span>
+                  <span>{t("footer.eventDates")}</span>
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
                   <Mail className="w-5 h-5 text-primary shrink-0" />
@@ -167,30 +175,30 @@ export function Layout({ children }: LayoutProps) {
             </div>
 
             <div>
-              <h3 className="font-semibold text-lg mb-6">Newsletter</h3>
+              <h3 className="font-semibold text-lg mb-6">{t("footer.newsletter")}</h3>
               <p className="text-muted-foreground text-sm mb-4">
-                Stay updated with the latest construction trends and expo news.
+                {t("footer.newsletterDesc")}
               </p>
               <form onSubmit={handleNewsletter} className="flex flex-col gap-3">
-                <Input 
-                  type="email" 
-                  placeholder="Your email address" 
-                  required 
+                <Input
+                  type="email"
+                  placeholder={t("footer.emailPlaceholder")}
+                  required
                   className="bg-background border-border"
                 />
                 <Button type="submit" className="w-full">
-                  Subscribe
+                  {t("footer.subscribe")}
                 </Button>
               </form>
             </div>
           </div>
 
           <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>&copy; 2026 NordByg Expo. All rights reserved.</p>
+            <p>{t("footer.copyright")}</p>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-primary transition-colors">Cookie Policy</a>
+              <a href="#" className="hover:text-primary transition-colors">{t("footer.privacy")}</a>
+              <a href="#" className="hover:text-primary transition-colors">{t("footer.terms")}</a>
+              <a href="#" className="hover:text-primary transition-colors">{t("footer.cookie")}</a>
             </div>
           </div>
         </div>
