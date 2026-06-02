@@ -261,6 +261,10 @@
 
     /* ── Print ── */
     @media print {
+      html, body, * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
       body { background: #fff; }
       .page { margin: 0; box-shadow: none; width: 100%; min-height: auto; }
       .no-print { display: none; }
