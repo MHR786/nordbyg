@@ -153,7 +153,7 @@ export function Layout({ children }: LayoutProps) {
               <ul className="space-y-4">
                 <li className="flex items-start gap-3 text-muted-foreground">
                   <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                  <span>Bella Center<br/>Center Boulevard 5<br/>2300 København S</span>
+                  <span>Bella Center<br/>Center Boulevard 5<br/>2300 Copenhagen S</span>
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
                   <Calendar className="w-5 h-5 text-primary shrink-0" />
@@ -187,11 +187,6 @@ export function Layout({ children }: LayoutProps) {
 
           <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <p>&copy; 2026 NordByg Expo. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-primary transition-colors">Cookie Policy</a>
-            </div>
           </div>
         </div>
       </footer>

@@ -42,10 +42,9 @@ const registrantDB = [
     country: "Pakistan",
     dob: "February 9, 1984",
     passport: "LE5167091",
-    passportExpiry: "July 2, 2028",
     passType: "3-Day Trade Pass",
     regType: "Visitor — Company Representative",
-    regDate: "April 29, 2026",
+    regDate: "June 02, 2026",
     ref: "NB2026-VIS-00847",
   },
 ];

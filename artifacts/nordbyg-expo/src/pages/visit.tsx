@@ -95,7 +95,7 @@ export default function Visit() {
               <p className="text-muted-foreground mb-4">
                 Bella Center Copenhagen<br />
                 Center Boulevard 5<br />
-                2300 København S<br />
+                2300 Copenhagen S<br />
                 Denmark
               </p>
               <a

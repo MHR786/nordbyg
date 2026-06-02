@@ -123,7 +123,7 @@ export const fullProgramme = {
   ],
   "Day 2 — Tuesday 7 July": [
     { time: "09:30–10:15", title: "Policy & Productivity: The Next Decade of Danish Building", speaker: "Henrik Bach Mortensen, DI Byg", room: "Main Stage", track: "Policy" },
-    { time: "10:30–11:15", title: "Modular Housing — Solving the København Shortage", speaker: "Birgitte Holm, NCC Folkboligen", room: "Hall B Theatre", track: "Modular" },
+    { time: "10:30–11:15", title: "Modular Housing — Solving the Copenhagen Shortage", speaker: "Birgitte Holm, NCC Folkboligen", room: "Hall B Theatre", track: "Modular" },
     { time: "11:30–12:15", title: "Adaptive Facades for the Nordic Climate", speaker: "Jakob Eriksen, Henning Larsen", room: "Hall C Theatre", track: "Architecture" },
     { time: "13:00–13:45", title: "Hands-On: Calibrating Laser-Guided Site Layout Tools", speaker: "Hilti Workshop Team", room: "Hall B Workshop Zone", track: "Tools" },
     { time: "14:00–14:45", title: "Prefab Bathrooms — From Pod to Project", speaker: "Lars Petersen, Probad", room: "Innovation Lab", track: "Modular" },
@@ -167,7 +167,7 @@ export const faqs = [
   },
   {
     q: "Where is NordByg Expo held?",
-    a: "All three days take place at Bella Center Copenhagen, Center Boulevard 5, 2300 København S — Scandinavia's largest exhibition venue, located 7 km from Copenhagen Airport (CPH) and directly served by the Bella Center Metro station on the M1 line.",
+    a: "All three days take place at Bella Center Copenhagen, Center Boulevard 5, 2300 Copenhagen S — Scandinavia's largest exhibition venue, located 7 km from Copenhagen Airport (CPH) and directly served by the Bella Center Metro station on the M1 line.",
   },
   {
     q: "How do I become an exhibitor?",

@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Calendar,
   MapPin,
-  Download,
   Quote,
   ChevronRight,
   Star,
@@ -41,63 +40,6 @@ import boothNetworking from "@/assets/images/booth-networking.png";
 import craftsman from "@/assets/images/craftsman.png";
 import prefab from "@/assets/images/prefab.png";
 import timber from "@/assets/images/timber-construction.png";
-
-function downloadBrochure() {
-  const text = `NORDBYG EXPO 2026 — DENMARK'S CONSTRUCTION & BUILDING TRADE SHOW
-================================================================
-
-Dates:    6 — 8 July 2026
-Venue:    Bella Center Copenhagen, Center Boulevard 5, 2300 København S
-Hours:    Monday — Wednesday  09:00 — 18:00
-
-ABOUT NORDBYG
--------------
-NordByg Expo brings together the entire Danish and Nordic construction
-ecosystem under one roof: 350+ exhibitors, 12,000+ trade visitors,
-80+ speakers and 25,000 m² of dedicated exhibition space.
-
-FOCUS AREAS
------------
-• BIM & Digital Construction
-• Sustainable Building Materials
-• Heavy Machinery & Equipment
-• Tools & Craftsmen Equipment
-• Prefab & Modular Construction
-• Smart Buildings & Facade Technology
-• Safety, Compliance & Standards
-• Architecture & Urban Design
-
-EXHIBITOR PRICING (indicative)
-------------------------------
-9 m²  shell-scheme    from   12,400 DKK
-18 m² shell-scheme    from   23,800 DKK
-36 m² space-only      from   42,500 DKK
-72 m² space-only      from   78,000 DKK
-
-VISITOR TICKETS
----------------
-1-day trade pass      245 DKK
-3-day trade pass      545 DKK
-Student (with ID)      95 DKK
-DI Byg / AOB members  free
-
-CONTACT
--------
-NordByg Expo Sekretariat
-Email:  info@nordexpo.dk
-
-Register today at nordexpo.dk/register
-`;
-  const blob = new Blob([text], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "nordbyg-expo-2026-brochure.txt";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
 
 function Section({
   children,
@@ -289,7 +231,7 @@ export default function Home() {
               <p className="text-lg text-muted-foreground mb-5 leading-relaxed">
                 For over a decade NordByg has been the meeting place for
                 Denmark's construction industry — the contractors building
-                København's new districts, the suppliers reinventing low-carbon
+                Copenhagen's new districts, the suppliers reinventing low-carbon
                 materials, and the håndværkere who finish every project with
                 Nordic precision.
               </p>
@@ -305,14 +247,6 @@ export default function Home() {
                     Read our story <ChevronRight className="ml-1 w-4 h-4" />
                   </Button>
                 </Link>
-                <Button
-                  size="lg"
-                  variant="ghost"
-                  onClick={downloadBrochure}
-                  className="text-foreground hover:text-primary"
-                >
-                  <Download className="mr-2 w-4 h-4" /> Download brochure
-                </Button>
               </div>
             </div>
           </FadeIn>
