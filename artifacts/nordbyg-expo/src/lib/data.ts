@@ -9,11 +9,26 @@ import {
   PenTool,
 } from "lucide-react";
 
+// Event starts 6 July 2026. The "Days to Go" stat below is derived from
+// this date so the number stays in sync as the event approaches.
+export const EVENT_START_DATE = new Date(2026, 6, 6); // month index 6 = July
+
+function daysUntilEventStart(): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = new Date(EVENT_START_DATE);
+  start.setHours(0, 0, 0, 0);
+  const diffDays = Math.ceil(
+    (start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  return Math.max(0, diffDays);
+}
+
 export const expoStats = [
   { label: "Exhibitors", value: 350, suffix: "+" },
   { label: "Trade Visitors", value: 12000, suffix: "+" },
   { label: "Speakers", value: 80, suffix: "+" },
-  { label: "Days", value: 3, suffix: "" },
+  { label: "Days to Go", value: daysUntilEventStart(), suffix: "" },
   { label: "m² Hall Space", value: 25000, suffix: "" },
 ];
 
