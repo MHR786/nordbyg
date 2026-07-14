@@ -1,4 +1,4 @@
-﻿import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "wouter";
 import {
@@ -175,7 +175,7 @@ export default function Home() {
             >
               <div className="flex items-center gap-2 text-foreground/80">
                 <Calendar className="w-5 h-5 text-primary" />
-                <span className="font-medium">6 — 8 July 2026</span>
+                <span className="font-medium">24 — 26 August 2026</span>
               </div>
               <div className="flex items-center gap-2 text-foreground/80">
                 <MapPin className="w-5 h-5 text-primary" />

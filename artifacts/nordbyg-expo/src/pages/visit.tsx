@@ -1,4 +1,4 @@
-﻿import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "wouter";
 import {
   Clock,
@@ -76,15 +76,15 @@ export default function Visit() {
               <h2 className="text-xl font-semibold mb-3">Opening hours</h2>
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex justify-between">
-                  <span>Monday 6 July</span>
+                  <span>Monday 24 August</span>
                   <span className="font-medium text-foreground">09:00 — 18:00</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Tuesday 7 July</span>
+                  <span>Tuesday 25 August</span>
                   <span className="font-medium text-foreground">09:00 — 18:00</span>
                 </li>
                 <li className="flex justify-between">
-                  <span>Wednesday 8 July</span>
+                  <span>Wednesday 26 August</span>
                   <span className="font-medium text-foreground">09:00 — 17:00</span>
                 </li>
               </ul>

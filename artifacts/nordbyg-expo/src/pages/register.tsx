@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
@@ -364,7 +364,7 @@ function Sidebar({
         <Card className="p-5 bg-card mb-5 border-border">
           <div className="flex items-center gap-3 mb-3">
             <Calendar className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">6 — 8 July 2026</span>
+            <span className="text-sm font-medium">24 — 26 August 2026</span>
           </div>
           <div className="flex items-center gap-3 mb-3">
             <MapPin className="w-4 h-4 text-primary" />

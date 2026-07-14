@@ -1,4 +1,4 @@
-﻿import { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, ArrowRight, MapPin, Calendar, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -157,7 +157,7 @@ export function Layout({ children }: LayoutProps) {
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
                   <Calendar className="w-5 h-5 text-primary shrink-0" />
-                  <span>6-8 July 2026</span>
+                  <span>24-26 August 2026</span>
                 </li>
                 <li className="flex items-center gap-3 text-muted-foreground">
                   <Mail className="w-5 h-5 text-primary shrink-0" />

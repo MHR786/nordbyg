@@ -150,8 +150,8 @@ export default function Exhibitors() {
                 </div>
               </div>
               <div className="pt-4 text-sm text-muted-foreground">
-                Visit this exhibitor at NordByg 2026 — 6&nbsp;—&nbsp;8
-                July at Bella Center Copenhagen.
+                Visit this exhibitor at NordByg 2026 — 24&nbsp;—&nbsp;26
+                August at Bella Center Copenhagen.
               </div>
             </>
           )}

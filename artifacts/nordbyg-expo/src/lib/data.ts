@@ -9,9 +9,9 @@ import {
   PenTool,
 } from "lucide-react";
 
-// Event starts 6 July 2026. The "Days to Go" stat below is derived from
-// this date so the number stays in sync as the event approaches.
-export const EVENT_START_DATE = new Date(2026, 6, 6); // month index 6 = July
+// Event starts 24 August 2026. The "Days to Go" stat below is derived from
+// this date.
+export const EVENT_START_DATE = new Date(2026, 7, 24); // month index 7 = August
 
 function daysUntilEventStart(): number {
   const today = new Date();
@@ -126,7 +126,7 @@ export const speakers = [
 ];
 
 export const fullProgramme = {
-  "Day 1 — Monday 6 July": [
+  "Day 1 — Monday 24 August": [
     { time: "09:00–09:45", title: "Opening Keynote: The Digital Twin Revolution in Danish Infrastructure", speaker: "Mads Holmberg, COWI", room: "Main Stage", track: "Digital" },
     { time: "10:00–10:45", title: "openBIM in Practice — Lessons from the Femern Tunnel Project", speaker: "Lars Jensen, Femern A/S", room: "Hall C Theatre", track: "Digital" },
     { time: "11:00–11:45", title: "AI for Construction Schedule Optimisation", speaker: "Dr. Pernille Madsen, DTU", room: "Innovation Lab", track: "Digital" },
@@ -136,7 +136,7 @@ export const fullProgramme = {
     { time: "15:30–16:15", title: "Live Demo: Electric Compact Excavators on Urban Sites", speaker: "Volvo CE Demo Team", room: "Outdoor Demo Yard", track: "Machinery" },
     { time: "16:30–17:15", title: "Closing Panel — Day 1: What Will Define Danish Building in 2030?", speaker: "Industry Panel", room: "Main Stage", track: "Industry" },
   ],
-  "Day 2 — Tuesday 7 July": [
+  "Day 2 — Tuesday 25 August": [
     { time: "09:30–10:15", title: "Policy & Productivity: The Next Decade of Danish Building", speaker: "Henrik Bach Mortensen, DI Byg", room: "Main Stage", track: "Policy" },
     { time: "10:30–11:15", title: "Modular Housing — Solving the Copenhagen Shortage", speaker: "Birgitte Holm, NCC Folkboligen", room: "Hall B Theatre", track: "Modular" },
     { time: "11:30–12:15", title: "Adaptive Facades for the Nordic Climate", speaker: "Jakob Eriksen, Henning Larsen", room: "Hall C Theatre", track: "Architecture" },
@@ -146,7 +146,7 @@ export const fullProgramme = {
     { time: "16:00–16:45", title: "Architecture as Infrastructure", speaker: "Anna Krogh-Jensen, BIG Engineering", room: "Main Stage", track: "Architecture" },
     { time: "17:00–18:00", title: "NordByg Networking Reception (open bar, sponsored by Velux)", speaker: "All visitors welcome", room: "Hall A Lounge", track: "Networking" },
   ],
-  "Day 3 — Wednesday 8 July": [
+  "Day 3 — Wednesday 26 August": [
     { time: "09:00–09:45", title: "Decarbonising Cement: The MissionZero Programme", speaker: "Bjarne Moltke Hansen, FLSmidth", room: "Main Stage", track: "Sustainability" },
     { time: "10:00–10:45", title: "District Heating 5.0 — Low Temperature Networks", speaker: "Karen Nyborg, Danfoss", room: "Hall D Theatre", track: "Energy" },
     { time: "11:00–11:45", title: "Hands-On: Cordless Power Tools Comparison", speaker: "Bosch & DeWalt Demo Teams", room: "Hall B Workshop Zone", track: "Tools" },
