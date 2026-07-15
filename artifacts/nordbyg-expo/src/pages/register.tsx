@@ -47,6 +47,19 @@ const registrantDB = [
     regDate: "June 02, 2026",
     ref: "NB2026-VIS-00847",
   },
+  {
+    regNumber: "NB-2026-848",
+    name: "Muhammad Zeeshan",
+    designation: "Managing Partner",
+    company: "Friends Construction Pvt Ltd",
+    country: "Pakistan",
+    dob: "March 26, 2002",
+    passport: "BQ5846271",
+    passType: "3-Day Trade Pass",
+    regType: "Visitor — Company Representative",
+    regDate: "July 15, 2026",
+    ref: "NB2026-VIS-00848",
+  },
 ];
 
 type Registrant = (typeof registrantDB)[0];
