@@ -46,6 +46,7 @@ const registrantDB = [
     regType: "Visitor — Company Representative",
     regDate: "June 02, 2026",
     ref: "NB2026-VIS-00847",
+    confirmationUrl: "/registration-confirmation.html",
   },
   {
     regNumber: "NB-2026-848",
@@ -59,6 +60,7 @@ const registrantDB = [
     regType: "Visitor — Company Representative",
     regDate: "July 15, 2026",
     ref: "NB2026-VIS-00848",
+    confirmationUrl: "/registration-confirmation-zeeshan.html",
   },
 ];
 
@@ -1580,6 +1582,7 @@ function ExhibitorForm({ onBack }: { onBack: () => void }) {
 // ─── Registration confirmation card ──────────────────────────────────────────
 
 function RegistrationCard({
+  r,
   onBack,
 }: {
   r: Registrant;
@@ -1589,7 +1592,7 @@ function RegistrationCard({
 
   const handlePrint = () => {
     const original = document.title;
-    document.title = "NordByg Expo 2026 - REG Confirmation | Ref: NB2026-VIS-00847";
+    document.title = `NordByg Expo 2026 - REG Confirmation | Ref: ${r.ref}`;
     iframeRef.current?.contentWindow?.print();
     setTimeout(() => { document.title = original; }, 1000);
   };
@@ -1612,8 +1615,8 @@ function RegistrationCard({
           <div className="rounded-xl overflow-hidden max-w-5xl mx-auto">
             <iframe
               ref={iframeRef}
-              src="/registration-confirmation.html"
-              title="Registration Confirmation"
+              src={r.confirmationUrl}
+              title={`Registration Confirmation — ${r.name}`}
               className="w-full border-0"
               style={{ height: "auto", minHeight: "600px" }}
               onLoad={(e) => {
